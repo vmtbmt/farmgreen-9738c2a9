@@ -1,17 +1,25 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Garden = {
   id: string;
   name: string;
   crop: string;
-  area: number; // m2
+  area: number;
   location: string;
-  plantedAt: string; // ISO date
+  plantedAt: string;
   notes?: string;
   createdAt: string;
 };
 
-export type ActivityType = "Tưới nước" | "Bón phân" | "Phun thuốc" | "Gieo trồng" | "Thu hoạch" | "Làm cỏ" | "Khác";
+export type ActivityType =
+  | "Tưới nước"
+  | "Bón phân"
+  | "Phun thuốc"
+  | "Gieo trồng"
+  | "Thu hoạch"
+  | "Làm cỏ"
+  | "Khác";
 
 export const ACTIVITY_TYPES: ActivityType[] = [
   "Tưới nước",
@@ -27,134 +35,125 @@ export type ActivityLog = {
   id: string;
   gardenId: string;
   type: ActivityType;
-  date: string; // ISO
+  date: string;
   note: string;
   createdAt: string;
 };
 
-type FarmState = {
-  gardens: Garden[];
-  logs: ActivityLog[];
+type GardenRow = {
+  id: string;
+  name: string;
+  crop: string;
+  area: number | string;
+  location: string;
+  planted_at: string;
+  notes: string | null;
+  created_at: string;
 };
 
-const KEY = "farm-store-v1";
-
-const defaultState: FarmState = {
-  gardens: [
-    {
-      id: "g1",
-      name: "Vườn Rau Sau Nhà",
-      crop: "Rau cải xanh",
-      area: 120,
-      location: "Khu A - Sau nhà",
-      plantedAt: new Date(Date.now() - 12 * 86400000).toISOString().slice(0, 10),
-      notes: "Đất tơi xốp, tưới sáng và chiều.",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "g2",
-      name: "Vườn Cà Chua",
-      crop: "Cà chua bi",
-      area: 80,
-      location: "Khu B - Nhà kính",
-      plantedAt: new Date(Date.now() - 25 * 86400000).toISOString().slice(0, 10),
-      notes: "Cần làm giàn leo.",
-      createdAt: new Date().toISOString(),
-    },
-  ],
-  logs: [
-    {
-      id: "l1",
-      gardenId: "g1",
-      type: "Tưới nước",
-      date: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
-      note: "Tưới đẫm buổi sáng.",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "l2",
-      gardenId: "g2",
-      type: "Bón phân",
-      date: new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10),
-      note: "Bón NPK 16-16-8.",
-      createdAt: new Date().toISOString(),
-    },
-  ],
+type LogRow = {
+  id: string;
+  garden_id: string;
+  type: string;
+  date: string;
+  note: string;
+  created_at: string;
 };
 
-let state: FarmState = defaultState;
-let hydrated = false;
-const listeners = new Set<() => void>();
+const mapGarden = (r: GardenRow): Garden => ({
+  id: r.id,
+  name: r.name,
+  crop: r.crop,
+  area: Number(r.area) || 0,
+  location: r.location ?? "",
+  plantedAt: r.planted_at,
+  notes: r.notes ?? "",
+  createdAt: r.created_at,
+});
 
-function loadInitial() {
-  if (typeof window === "undefined") return;
-  if (hydrated) return;
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) state = JSON.parse(raw);
-  } catch {}
-  hydrated = true;
-  listeners.forEach((l) => l());
+const mapLog = (r: LogRow): ActivityLog => ({
+  id: r.id,
+  gardenId: r.garden_id,
+  type: r.type as ActivityType,
+  date: r.date,
+  note: r.note ?? "",
+  createdAt: r.created_at,
+});
+
+async function fetchGardens(): Promise<Garden[]> {
+  const { data, error } = await supabase
+    .from("gardens")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data as GardenRow[]).map(mapGarden);
 }
 
-function persist() {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(KEY, JSON.stringify(state));
-  }
-  listeners.forEach((l) => l());
+async function fetchLogs(): Promise<ActivityLog[]> {
+  const { data, error } = await supabase
+    .from("activity_logs")
+    .select("*")
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data as LogRow[]).map(mapLog);
 }
 
-function subscribe(cb: () => void) {
-  listeners.add(cb);
-  return () => listeners.delete(cb);
+export function useFarmStore() {
+  const gardensQ = useQuery({ queryKey: ["gardens"], queryFn: fetchGardens });
+  const logsQ = useQuery({ queryKey: ["logs"], queryFn: fetchLogs });
+  return {
+    gardens: gardensQ.data ?? [],
+    logs: logsQ.data ?? [],
+    isLoading: gardensQ.isLoading || logsQ.isLoading,
+  };
 }
 
-const emptyState: FarmState = { gardens: [], logs: [] };
-
-export function useFarmStore(): FarmState {
-  useEffect(() => {
-    loadInitial();
-  }, []);
-  const snap = useSyncExternalStore(
-    subscribe,
-    () => state,
-    () => emptyState
-  );
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted ? snap : emptyState;
+export function useFarmActions() {
+  const qc = useQueryClient();
+  return {
+    async addGarden(input: Omit<Garden, "id" | "createdAt">) {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user?.id;
+      if (!user_id) throw new Error("Chưa đăng nhập");
+      const { error } = await supabase.from("gardens").insert({
+        user_id,
+        name: input.name,
+        crop: input.crop,
+        area: input.area,
+        location: input.location,
+        planted_at: input.plantedAt,
+        notes: input.notes ?? null,
+      });
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["gardens"] });
+    },
+    async deleteGarden(id: string) {
+      const { error } = await supabase.from("gardens").delete().eq("id", id);
+      if (error) throw error;
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["gardens"] }),
+        qc.invalidateQueries({ queryKey: ["logs"] }),
+      ]);
+    },
+    async addLog(input: Omit<ActivityLog, "id" | "createdAt">) {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user?.id;
+      if (!user_id) throw new Error("Chưa đăng nhập");
+      const { error } = await supabase.from("activity_logs").insert({
+        user_id,
+        garden_id: input.gardenId,
+        type: input.type,
+        date: input.date,
+        note: input.note,
+      });
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["logs"] });
+    },
+    async deleteLog(id: string) {
+      const { error } = await supabase.from("activity_logs").delete().eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["logs"] });
+    },
+  };
 }
-
-export const farmActions = {
-  addGarden(input: Omit<Garden, "id" | "createdAt">) {
-    state = {
-      ...state,
-      gardens: [
-        ...state.gardens,
-        { ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
-      ],
-    };
-    persist();
-  },
-  deleteGarden(id: string) {
-    state = {
-      gardens: state.gardens.filter((g) => g.id !== id),
-      logs: state.logs.filter((l) => l.gardenId !== id),
-    };
-    persist();
-  },
-  addLog(input: Omit<ActivityLog, "id" | "createdAt">) {
-    state = {
-      ...state,
-      logs: [
-        { ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
-        ...state.logs,
-      ],
-    };
-    persist();
-  },
-  deleteLog(id: string) {
-    state = { ...state, logs: state.logs.filter((l) => l.id !== id) };
-    persist();
-  },
-};
