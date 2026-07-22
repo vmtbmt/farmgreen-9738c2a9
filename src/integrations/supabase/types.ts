@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_logs: {
+        Row: {
+          created_at: string
+          date: string
+          garden_id: string
+          id: string
+          note: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          garden_id: string
+          id?: string
+          note?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          garden_id?: string
+          id?: string
+          note?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_garden_id_fkey"
+            columns: ["garden_id"]
+            isOneToOne: false
+            referencedRelation: "gardens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gardens: {
+        Row: {
+          area: number
+          created_at: string
+          crop: string
+          id: string
+          location: string
+          name: string
+          notes: string | null
+          planted_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          area?: number
+          created_at?: string
+          crop: string
+          id?: string
+          location?: string
+          name: string
+          notes?: string | null
+          planted_at: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          area?: number
+          created_at?: string
+          crop?: string
+          id?: string
+          location?: string
+          name?: string
+          notes?: string | null
+          planted_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
