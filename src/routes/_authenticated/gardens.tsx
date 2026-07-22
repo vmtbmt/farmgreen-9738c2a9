@@ -29,7 +29,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { farmActions, useFarmStore } from "@/lib/farm-store";
+import { useFarmActions, useFarmStore } from "@/lib/farm-store";
 
 export const Route = createFileRoute("/_authenticated/gardens")({
   head: () => ({
