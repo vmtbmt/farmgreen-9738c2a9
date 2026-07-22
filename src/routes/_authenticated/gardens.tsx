@@ -268,6 +268,7 @@ function AddGardenDialog({
 }
 
 function DeleteGardenButton({ id, name }: { id: string; name: string }) {
+  const actions = useFarmActions();
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -285,9 +286,13 @@ function DeleteGardenButton({ id, name }: { id: string; name: string }) {
         <AlertDialogFooter>
           <AlertDialogCancel>Huỷ</AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => {
-              farmActions.deleteGarden(id);
-              toast.success("Đã xoá khu vườn.");
+            onClick={async () => {
+              try {
+                await actions.deleteGarden(id);
+                toast.success("Đã xoá khu vườn.");
+              } catch (err) {
+                toast.error("Không thể xoá: " + (err as Error).message);
+              }
             }}
           >
             Xoá
