@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ACTIVITY_TYPES, farmActions, useFarmStore, type ActivityType } from "@/lib/farm-store";
+import { ACTIVITY_TYPES, useFarmActions, useFarmStore, type ActivityType } from "@/lib/farm-store";
 
 const searchSchema = z.object({
   gardenId: z.string().optional(),
