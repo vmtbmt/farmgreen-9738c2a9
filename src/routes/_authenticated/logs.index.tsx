@@ -161,9 +161,13 @@ function LogsPage() {
                             size="icon"
                             variant="ghost"
                             className="text-muted-foreground hover:text-destructive"
-                            onClick={() => {
-                              farmActions.deleteLog(l.id);
-                              toast.success("Đã xoá nhật ký.");
+                            onClick={async () => {
+                              try {
+                                await actions.deleteLog(l.id);
+                                toast.success("Đã xoá nhật ký.");
+                              } catch (err) {
+                                toast.error("Không thể xoá: " + (err as Error).message);
+                              }
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
