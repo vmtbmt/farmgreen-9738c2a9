@@ -29,6 +29,7 @@ export const Route = createFileRoute("/_authenticated/logs/")({
 
 function LogsPage() {
   const { gardens, logs } = useFarmStore();
+  const actions = useFarmActions();
   const [gardenFilter, setGardenFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
