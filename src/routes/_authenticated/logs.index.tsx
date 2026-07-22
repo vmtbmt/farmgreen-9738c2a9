@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { ACTIVITY_TYPES, farmActions, useFarmStore } from "@/lib/farm-store";
 
-export const Route = createFileRoute("/logs/")({
+export const Route = createFileRoute("/_authenticated/logs/")({
   head: () => ({
     meta: [
       { title: "Lịch sử hoạt động — Nông Trại Xanh" },

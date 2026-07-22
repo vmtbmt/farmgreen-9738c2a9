@@ -9,104 +9,109 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as GardensRouteImport } from './routes/gardens'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as LogsIndexRouteImport } from './routes/logs.index'
-import { Route as LogsNewRouteImport } from './routes/logs.new'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedGardensRouteImport } from './routes/_authenticated/gardens'
+import { Route as AuthenticatedLogsIndexRouteImport } from './routes/_authenticated/logs.index'
+import { Route as AuthenticatedLogsNewRouteImport } from './routes/_authenticated/logs.new'
 
-const GardensRoute = GardensRouteImport.update({
-  id: '/gardens',
-  path: '/gardens',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LogsIndexRoute = LogsIndexRouteImport.update({
-  id: '/logs/',
+const AuthenticatedGardensRoute = AuthenticatedGardensRouteImport.update({
+  id: '/_authenticated/gardens',
+  path: '/gardens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedLogsIndexRoute = AuthenticatedLogsIndexRouteImport.update({
+  id: '/_authenticated/logs/',
   path: '/logs/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LogsNewRoute = LogsNewRouteImport.update({
-  id: '/logs/new',
+const AuthenticatedLogsNewRoute = AuthenticatedLogsNewRouteImport.update({
+  id: '/_authenticated/logs/new',
   path: '/logs/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/gardens': typeof GardensRoute
-  '/logs/new': typeof LogsNewRoute
-  '/logs/': typeof LogsIndexRoute
+  '/gardens': typeof AuthenticatedGardensRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/logs/new': typeof AuthenticatedLogsNewRoute
+  '/logs/': typeof AuthenticatedLogsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/gardens': typeof GardensRoute
-  '/logs/new': typeof LogsNewRoute
-  '/logs': typeof LogsIndexRoute
+  '/gardens': typeof AuthenticatedGardensRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/logs/new': typeof AuthenticatedLogsNewRoute
+  '/logs': typeof AuthenticatedLogsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/gardens': typeof GardensRoute
-  '/logs/new': typeof LogsNewRoute
-  '/logs/': typeof LogsIndexRoute
+  '/_authenticated/gardens': typeof AuthenticatedGardensRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/logs/new': typeof AuthenticatedLogsNewRoute
+  '/_authenticated/logs/': typeof AuthenticatedLogsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/gardens' | '/logs/new' | '/logs/'
+  fullPaths: '/gardens' | '/' | '/logs/new' | '/logs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gardens' | '/logs/new' | '/logs'
-  id: '__root__' | '/' | '/gardens' | '/logs/new' | '/logs/'
+  to: '/gardens' | '/' | '/logs/new' | '/logs'
+  id:
+    | '__root__'
+    | '/_authenticated/gardens'
+    | '/_authenticated/'
+    | '/_authenticated/logs/new'
+    | '/_authenticated/logs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  GardensRoute: typeof GardensRoute
-  LogsNewRoute: typeof LogsNewRoute
-  LogsIndexRoute: typeof LogsIndexRoute
+  AuthenticatedGardensRoute: typeof AuthenticatedGardensRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedLogsNewRoute: typeof AuthenticatedLogsNewRoute
+  AuthenticatedLogsIndexRoute: typeof AuthenticatedLogsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/gardens': {
-      id: '/gardens'
-      path: '/gardens'
-      fullPath: '/gardens'
-      preLoaderRoute: typeof GardensRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/logs/': {
-      id: '/logs/'
+    '/_authenticated/gardens': {
+      id: '/_authenticated/gardens'
+      path: '/gardens'
+      fullPath: '/gardens'
+      preLoaderRoute: typeof AuthenticatedGardensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/logs/': {
+      id: '/_authenticated/logs/'
       path: '/logs'
       fullPath: '/logs/'
-      preLoaderRoute: typeof LogsIndexRouteImport
+      preLoaderRoute: typeof AuthenticatedLogsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/logs/new': {
-      id: '/logs/new'
+    '/_authenticated/logs/new': {
+      id: '/_authenticated/logs/new'
       path: '/logs/new'
       fullPath: '/logs/new'
-      preLoaderRoute: typeof LogsNewRouteImport
+      preLoaderRoute: typeof AuthenticatedLogsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  GardensRoute: GardensRoute,
-  LogsNewRoute: LogsNewRoute,
-  LogsIndexRoute: LogsIndexRoute,
+  AuthenticatedGardensRoute: AuthenticatedGardensRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedLogsNewRoute: AuthenticatedLogsNewRoute,
+  AuthenticatedLogsIndexRoute: AuthenticatedLogsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

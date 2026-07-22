@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { farmActions, useFarmStore } from "@/lib/farm-store";
 
-export const Route = createFileRoute("/gardens")({
+export const Route = createFileRoute("/_authenticated/gardens")({
   head: () => ({
     meta: [
       { title: "Khu vườn — Nông Trại Xanh" },

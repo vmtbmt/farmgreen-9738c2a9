@@ -22,7 +22,7 @@ const searchSchema = z.object({
   gardenId: z.string().optional(),
 });
 
-export const Route = createFileRoute("/logs/new")({
+export const Route = createFileRoute("/_authenticated/logs/new")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
