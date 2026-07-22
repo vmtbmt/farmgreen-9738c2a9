@@ -16,13 +16,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ACTIVITY_TYPES, farmActions, useFarmStore, type ActivityType } from "@/lib/farm-store";
+import { ACTIVITY_TYPES, useFarmActions, useFarmStore, type ActivityType } from "@/lib/farm-store";
 
 const searchSchema = z.object({
   gardenId: z.string().optional(),
 });
 
-export const Route = createFileRoute("/logs/new")({
+export const Route = createFileRoute("/_authenticated/logs/new")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
@@ -37,6 +37,7 @@ export const Route = createFileRoute("/logs/new")({
 
 function NewLogPage() {
   const { gardens } = useFarmStore();
+  const actions = useFarmActions();
   const search = Route.useSearch();
   const navigate = useNavigate();
 
@@ -47,20 +48,24 @@ function NewLogPage() {
     note: "",
   });
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.gardenId) {
       toast.error("Vui lòng chọn khu vườn.");
       return;
     }
-    farmActions.addLog({
-      gardenId: form.gardenId,
-      type: form.type,
-      date: form.date,
-      note: form.note.trim(),
-    });
-    toast.success("Đã lưu nhật ký hoạt động!");
-    navigate({ to: "/logs" });
+    try {
+      await actions.addLog({
+        gardenId: form.gardenId,
+        type: form.type,
+        date: form.date,
+        note: form.note.trim(),
+      });
+      toast.success("Đã lưu nhật ký hoạt động!");
+      navigate({ to: "/logs" });
+    } catch (err) {
+      toast.error("Không thể lưu: " + (err as Error).message);
+    }
   };
 
   return (

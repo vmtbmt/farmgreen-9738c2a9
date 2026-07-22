@@ -13,9 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ACTIVITY_TYPES, farmActions, useFarmStore } from "@/lib/farm-store";
+import { ACTIVITY_TYPES, useFarmActions, useFarmStore } from "@/lib/farm-store";
 
-export const Route = createFileRoute("/logs/")({
+export const Route = createFileRoute("/_authenticated/logs/")({
   head: () => ({
     meta: [
       { title: "Lịch sử hoạt động — Nông Trại Xanh" },
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/logs/")({
 
 function LogsPage() {
   const { gardens, logs } = useFarmStore();
+  const actions = useFarmActions();
   const [gardenFilter, setGardenFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
@@ -160,9 +161,13 @@ function LogsPage() {
                             size="icon"
                             variant="ghost"
                             className="text-muted-foreground hover:text-destructive"
-                            onClick={() => {
-                              farmActions.deleteLog(l.id);
-                              toast.success("Đã xoá nhật ký.");
+                            onClick={async () => {
+                              try {
+                                await actions.deleteLog(l.id);
+                                toast.success("Đã xoá nhật ký.");
+                              } catch (err) {
+                                toast.error("Không thể xoá: " + (err as Error).message);
+                              }
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
