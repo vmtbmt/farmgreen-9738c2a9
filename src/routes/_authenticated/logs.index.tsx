@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ACTIVITY_TYPES, farmActions, useFarmStore } from "@/lib/farm-store";
+import { ACTIVITY_TYPES, useFarmActions, useFarmStore } from "@/lib/farm-store";
 
 export const Route = createFileRoute("/_authenticated/logs/")({
   head: () => ({
