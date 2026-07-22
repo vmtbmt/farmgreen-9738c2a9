@@ -9,38 +9,75 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as GardensRouteImport } from './routes/gardens'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LogsIndexRouteImport } from './routes/logs.index'
+import { Route as LogsNewRouteImport } from './routes/logs.new'
 
+const GardensRoute = GardensRouteImport.update({
+  id: '/gardens',
+  path: '/gardens',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LogsIndexRoute = LogsIndexRouteImport.update({
+  id: '/logs/',
+  path: '/logs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogsNewRoute = LogsNewRouteImport.update({
+  id: '/logs/new',
+  path: '/logs/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/gardens': typeof GardensRoute
+  '/logs/new': typeof LogsNewRoute
+  '/logs/': typeof LogsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/gardens': typeof GardensRoute
+  '/logs/new': typeof LogsNewRoute
+  '/logs': typeof LogsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/gardens': typeof GardensRoute
+  '/logs/new': typeof LogsNewRoute
+  '/logs/': typeof LogsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/gardens' | '/logs/new' | '/logs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/gardens' | '/logs/new' | '/logs'
+  id: '__root__' | '/' | '/gardens' | '/logs/new' | '/logs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GardensRoute: typeof GardensRoute
+  LogsNewRoute: typeof LogsNewRoute
+  LogsIndexRoute: typeof LogsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/gardens': {
+      id: '/gardens'
+      path: '/gardens'
+      fullPath: '/gardens'
+      preLoaderRoute: typeof GardensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +85,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/logs/': {
+      id: '/logs/'
+      path: '/logs'
+      fullPath: '/logs/'
+      preLoaderRoute: typeof LogsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logs/new': {
+      id: '/logs/new'
+      path: '/logs/new'
+      fullPath: '/logs/new'
+      preLoaderRoute: typeof LogsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GardensRoute: GardensRoute,
+  LogsNewRoute: LogsNewRoute,
+  LogsIndexRoute: LogsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
