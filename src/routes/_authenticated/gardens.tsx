@@ -137,6 +137,7 @@ function AddGardenDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const actions = useFarmActions();
   const [form, setForm] = useState({
     name: "",
     crop: "",
@@ -146,30 +147,34 @@ function AddGardenDialog({
     notes: "",
   });
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.crop.trim()) {
       toast.error("Vui lòng nhập tên khu vườn và loại cây trồng.");
       return;
     }
-    farmActions.addGarden({
-      name: form.name.trim(),
-      crop: form.crop.trim(),
-      area: Number(form.area) || 0,
-      location: form.location.trim(),
-      plantedAt: form.plantedAt,
-      notes: form.notes.trim(),
-    });
-    toast.success("Đã thêm khu vườn mới!");
-    setForm({
-      name: "",
-      crop: "",
-      area: "",
-      location: "",
-      plantedAt: new Date().toISOString().slice(0, 10),
-      notes: "",
-    });
-    onOpenChange(false);
+    try {
+      await actions.addGarden({
+        name: form.name.trim(),
+        crop: form.crop.trim(),
+        area: Number(form.area) || 0,
+        location: form.location.trim(),
+        plantedAt: form.plantedAt,
+        notes: form.notes.trim(),
+      });
+      toast.success("Đã thêm khu vườn mới!");
+      setForm({
+        name: "",
+        crop: "",
+        area: "",
+        location: "",
+        plantedAt: new Date().toISOString().slice(0, 10),
+        notes: "",
+      });
+      onOpenChange(false);
+    } catch (err) {
+      toast.error("Không thể thêm khu vườn: " + (err as Error).message);
+    }
   };
 
   return (
