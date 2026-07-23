@@ -46,6 +46,7 @@ function NewLogPage() {
     type: "Tưới nước" as ActivityType,
     date: new Date().toISOString().slice(0, 10),
     note: "",
+    cost: "",
   });
 
   const submit = async (e: React.FormEvent) => {
@@ -60,6 +61,7 @@ function NewLogPage() {
         type: form.type,
         date: form.date,
         note: form.note.trim(),
+        cost: Number(form.cost) || 0,
       });
       toast.success("Đã lưu nhật ký hoạt động!");
       navigate({ to: "/logs" });
@@ -151,6 +153,19 @@ function NewLogPage() {
                     onChange={(e) => setForm({ ...form, date: e.target.value })}
                   />
                 </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="cost">Chi phí (VNĐ)</Label>
+                <Input
+                  id="cost"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={form.cost}
+                  onChange={(e) => setForm({ ...form, cost: e.target.value })}
+                  placeholder="Ví dụ: 500000"
+                />
               </div>
 
               <div className="grid gap-2">

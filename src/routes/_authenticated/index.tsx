@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useFarmStore } from "@/lib/farm-store";
+import { DashboardAI } from "@/components/dashboard-ai";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -88,6 +89,8 @@ function Dashboard() {
           icon={<TrendingUp className="h-5 w-5" />}
         />
       </div>
+
+      <DashboardAI />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">

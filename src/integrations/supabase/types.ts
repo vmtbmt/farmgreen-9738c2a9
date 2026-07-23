@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       activity_logs: {
         Row: {
+          cost: number
           created_at: string
           date: string
           garden_id: string
@@ -26,6 +27,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cost?: number
           created_at?: string
           date: string
           garden_id: string
@@ -36,6 +38,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cost?: number
           created_at?: string
           date?: string
           garden_id?: string
@@ -48,6 +51,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "activity_logs_garden_id_fkey"
+            columns: ["garden_id"]
+            isOneToOne: false
+            referencedRelation: "gardens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disease_checks: {
+        Row: {
+          cause: string
+          confidence: number
+          created_at: string
+          diagnosis: string
+          garden_id: string | null
+          id: string
+          image_url: string
+          recommendation: string
+          updated_at: string
+          urgency: string
+          user_id: string
+        }
+        Insert: {
+          cause?: string
+          confidence?: number
+          created_at?: string
+          diagnosis?: string
+          garden_id?: string | null
+          id?: string
+          image_url: string
+          recommendation?: string
+          updated_at?: string
+          urgency?: string
+          user_id: string
+        }
+        Update: {
+          cause?: string
+          confidence?: number
+          created_at?: string
+          diagnosis?: string
+          garden_id?: string | null
+          id?: string
+          image_url?: string
+          recommendation?: string
+          updated_at?: string
+          urgency?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disease_checks_garden_id_fkey"
             columns: ["garden_id"]
             isOneToOne: false
             referencedRelation: "gardens"

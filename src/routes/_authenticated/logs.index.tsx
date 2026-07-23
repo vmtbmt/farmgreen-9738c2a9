@@ -148,6 +148,11 @@ function LogsPage() {
                               <span className="font-semibold">{l.type}</span>
                               <Badge variant="secondary">{g?.name ?? "Khu đã xoá"}</Badge>
                               {g?.crop && <Badge variant="outline">{g.crop}</Badge>}
+                              {l.cost > 0 && (
+                                <Badge className="bg-primary/15 text-primary hover:bg-primary/20">
+                                  {l.cost.toLocaleString("vi-VN")}₫
+                                </Badge>
+                              )}
                             </div>
                             {l.note ? (
                               <p className="mt-2 text-sm text-foreground/80">{l.note}</p>

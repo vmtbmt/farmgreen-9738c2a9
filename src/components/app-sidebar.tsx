@@ -1,18 +1,10 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Sprout, NotebookPen, History, Leaf, LogOut, Sparkles } from "lucide-react";
+import { LayoutDashboard, Sprout, NotebookPen, History, Leaf, LogOut, Sparkles, Stethoscope, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
+  SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,8 +12,10 @@ const items = [
   { title: "Tổng quan", url: "/", icon: LayoutDashboard },
   { title: "Khu vườn", url: "/gardens", icon: Sprout },
   { title: "Ghi nhật ký", url: "/logs/new", icon: NotebookPen },
-  { title: "Trợ lý AI", url: "/assistant", icon: Sparkles },
   { title: "Lịch sử hoạt động", url: "/logs", icon: History },
+  { title: "Trợ lý AI", url: "/assistant", icon: Sparkles },
+  { title: "Chẩn đoán bệnh", url: "/diagnose", icon: Stethoscope },
+  { title: "Báo cáo AI", url: "/reports", icon: FileText },
 ];
 
 export function AppSidebar() {
@@ -32,9 +26,7 @@ export function AppSidebar() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      setEmail(s?.user?.email ?? null);
-    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setEmail(s?.user?.email ?? null));
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -53,7 +45,7 @@ export function AppSidebar() {
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-semibold text-sidebar-foreground">Nông Trại Xanh</span>
-            <span className="text-xs text-sidebar-foreground/70">Quản lý thông minh</span>
+            <span className="text-xs text-sidebar-foreground/70">Trợ lý AI nông nghiệp</span>
           </div>
         </div>
       </SidebarHeader>
