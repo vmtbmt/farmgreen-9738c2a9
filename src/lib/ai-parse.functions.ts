@@ -1,11 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { getServerSession } from "@lovable.dev/cloud-auth-js";
 
 const InputSchema = z.object({ text: z.string().min(1) });
 
 export const parseFarmLog = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
+    // Authentication check - require authenticated user
+    const session = await getServerSession();
+    if (!session?.user?.id) {
+      throw new Error("Unauthorized: Please log in to use this feature");
+    }
+
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
@@ -21,7 +28,7 @@ export const parseFarmLog = createServerFn({ method: "POST" })
           {
             role: "system",
             content:
-              'Bạn là trợ lý phân tích nhật ký nông trại tiếng Việt. Trích xuất thông tin từ câu người dùng và CHỈ trả về JSON hợp lệ dạng {"activity_type":"","quantity":"","material":"","field_name":""}. activity_type là một trong: "Tưới nước","Bón phân","Phun thuốc","Gieo trồng","Thu hoạch","Làm cỏ","Khác". field_name là tên khu vườn (ví dụ "Khu A"). Không giải thích, không markdown.',
+              'Bạn là trợ lý phân tích nhật ký nông trại tiếng Việt. Trích xuất thông tin từ câu người dùng và CHỈ trả về JSON hợp lệ dạng {"activity_type":""[...]
           },
           { role: "user", content: data.text },
         ],
