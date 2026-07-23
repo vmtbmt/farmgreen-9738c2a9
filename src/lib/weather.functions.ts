@@ -13,8 +13,6 @@ export type WeatherData = {
   windSpeed: number;
   rainfall: number;
   location: string;
-  description: string;
-  emoji: string;
 };
 
 // Hàm chuyển đổi WMO weather code thành mô tả
@@ -91,17 +89,16 @@ export const getWeather = createServerFn({ method: "POST" })
       const current = json.current;
 
       const location = await reverseGeocode(data.latitude, data.longitude);
-      const weatherCode = current.weather_code;
 
       return {
         temperature: Math.round(current.temperature_2m),
         humidity: current.relative_humidity_2m,
-        weatherCode: weatherCode,
+        weatherCode: current.weather_code,
         windSpeed: Math.round(current.wind_speed_10m * 10) / 10,
         rainfall: current.rain || 0,
         location,
-        description: getWeatherDescription(weatherCode),
-        emoji: getWeatherEmoji(weatherCode),
+        description: getWeatherDescription(current.weather_code),
+        emoji: getWeatherEmoji(current.weather_code),
       };
     } catch (error) {
       throw new Error(
