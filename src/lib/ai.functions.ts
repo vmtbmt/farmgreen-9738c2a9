@@ -48,9 +48,9 @@ function buildDataSummary(gardens: GardenRow[], logs: LogRow[]) {
   return `KHU VƯỜN (${gardens.length}):\n${gLines.join("\n") || "(chưa có)"}\n\nNHẬT KÝ (${logs.length} bản ghi, hiển thị mới nhất):\n${lLines.join("\n") || "(chưa có)"}`;
 }
 
-const FARM_PROMPT = `Bạn là trợ lý nông trại AI cá nhân. Trả lời NGẮN GỌN, RÕ RÀNG bằng tiếng Việt, dựa CHÍNH XÁC trên dữ liệu khu vườn và nhật ký của người dùng bên dưới. Nếu người dùng hỏi câu không liên quan dữ liệu, hãy chuyển hướng khéo léo về nông trại. Khi tính toán, nêu con số cụ thể (số lần, tổng chi phí, ngày gần nhất...).`;
+const FARM_PROMPT = `Bạn là trợ lý nông trại AI cá nhân. Trả lời NGẮN GỌN, RÕ RÀNG bằng tiếng Việt, dựa CHÍNH XÁC trên dữ liệu khu vườn và nhật ký của [...]
 
-const EXPERT_PROMPT = `Bạn là CHUYÊN GIA NÔNG NGHIỆP TÂY NGUYÊN, chuyên sâu về cà phê, sầu riêng, hồ tiêu và cây ăn trái, ưu tiên điều kiện canh tác tại Đắk Lắk. Trả lời NGẮN GỌN, THỰC TẾ, DỄ HIỂU bằng tiếng Việt, kèm CÁC BƯỚC XỬ LÝ cụ thể. Nếu không chắc chắn về bệnh cây, hãy nói rõ mức độ tin cậy và đề nghị người dùng chụp ảnh để chẩn đoán chính xác hơn.`;
+const EXPERT_PROMPT = `Bạn là CHUYÊN GIA NÔNG NGHIỆP TÂY NGUYÊN, chuyên sâu về cà phê, sầu riêng, hồ tiêu và cây ăn trái, ưu tiên điều kiện canh tác tại Đắk L[...]
 
 const ChatInput = z.object({
   mode: z.enum(["farm", "expert"]),
@@ -72,64 +72,6 @@ export const chatWithAssistant = createServerFn({ method: "POST" })
     return { content };
   });
 
-export const analyzeFarm = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { gardens, logs } = await loadContext(context.supabase);
-    const now = new Date();
-    const thisMonth = now.toISOString().slice(0, 7);
-    const monthLogs = logs.filter((l) => l.date.startsWith(thisMonth));
-    const totalCost = monthLogs.reduce((s, l) => s + Number(l.cost || 0), 0);
-    const byGarden: Record<string, { count: number; cost: number }> = {};
-    for (const l of monthLogs) {
-      const b = (byGarden[l.garden_id] ||= { count: 0, cost: 0 });
-      b.count++;
-      b.cost += Number(l.cost || 0);
-    }
-    const gById = new Map(gardens.map((g) => [g.id, g]));
-    const entries = Object.entries(byGarden).map(([id, v]) => ({ id, name: gById.get(id)?.name ?? "?", ...v }));
-    const topActivity = [...entries].sort((a, b) => b.count - a.count)[0];
-    const topCost = [...entries].sort((a, b) => b.cost - a.cost)[0];
-
-    const summary = {
-      activities_this_month: monthLogs.length,
-      total_cost: totalCost,
-      top_activity_garden: topActivity?.name ?? null,
-      top_cost_garden: topCost?.name ?? null,
-    };
-
-    const alerts: Array<{ level: "warning" | "danger"; message: string }> = [];
-    for (const g of gardens) {
-      const gLogs = logs.filter((l) => l.garden_id === g.id);
-      const last = gLogs[0];
-      const daysSince = last ? Math.floor((now.getTime() - new Date(last.date).getTime()) / 86400000) : 9999;
-      if (daysSince > 20) alerts.push({ level: "danger", message: `Khu ${g.name} đã ${daysSince} ngày chưa có hoạt động nào.` });
-      else if (daysSince > 14) alerts.push({ level: "warning", message: `Khu ${g.name} đã ${daysSince} ngày chưa có hoạt động.` });
-      const lastWater = gLogs.find((l) => l.type === "Tưới nước");
-      const daysWater = lastWater ? Math.floor((now.getTime() - new Date(lastWater.date).getTime()) / 86400000) : 9999;
-      if (daysWater > 20) alerts.push({ level: "danger", message: `Khu ${g.name} chưa được tưới trong ${daysWater} ngày.` });
-    }
-
-    const prompt = `Dựa vào dữ liệu nông trại sau, hãy đưa ra 3-5 KHUYẾN NGHỊ NGẮN GỌN (mỗi khuyến nghị 1 câu) bằng tiếng Việt cho nông dân. Chỉ trả về JSON: {"recommendations":["...","..."]}\n\nTHÁNG NÀY: ${monthLogs.length} hoạt động, tổng chi phí ${totalCost}₫.\nKhu nhiều hoạt động nhất: ${topActivity?.name ?? "-"} (${topActivity?.count ?? 0} lần).\nKhu nhiều chi phí nhất: ${topCost?.name ?? "-"} (${topCost?.cost ?? 0}₫).\n\n${buildDataSummary(gardens, logs.slice(0, 80))}`;
-
-    let recommendations: string[] = [];
-    try {
-      const content = await callGemini({
-        messages: [
-          { role: "system", content: "Bạn là chuyên gia nông nghiệp. Chỉ trả JSON hợp lệ." },
-          { role: "user", content: prompt },
-        ],
-        response_format: { type: "json_object" },
-      });
-      const p = JSON.parse(content);
-      recommendations = Array.isArray(p.recommendations) ? p.recommendations.map(String) : [];
-    } catch (e) {
-      recommendations = [];
-    }
-
-    return { summary, alerts, recommendations };
-  });
-
 export const generateMonthlyReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -149,7 +91,7 @@ export const generateMonthlyReport = createServerFn({ method: "POST" })
     const top = Object.entries(costByGarden).sort((a, b) => b[1] - a[1])[0];
     const topGarden = top ? { name: gById.get(top[0])?.name ?? "?", cost: top[1] } : null;
 
-    const prompt = `Hãy phân tích dữ liệu nông trại tháng ${month} và trả về JSON:\n{"overview":"tóm tắt 2-3 câu","observations":["nhận xét 1","..."],"risks":["rủi ro 1","..."],"recommendations":["khuyến nghị tháng tới 1","..."]}\n\nDữ liệu tháng: ${JSON.stringify(summary)}\nKhu có chi phí cao nhất: ${topGarden?.name ?? "-"} (${topGarden?.cost ?? 0}₫)\n\n${buildDataSummary(gardens, monthLogs)}`;
+    const prompt = `Hãy phân tích dữ liệu nông trại tháng ${month} và trả về JSON:\n{"overview":"tóm tắt 2-3 câu","observations":["nhận xét 1","..."],"risks":["rủi ro 1",[...]
 
     let ai = { overview: "", observations: [] as string[], risks: [] as string[], recommendations: [] as string[] };
     try {
@@ -181,7 +123,7 @@ export const diagnoseDisease = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => DiagnoseInput.parse(d))
   .handler(async ({ data, context }) => {
-    const prompt = `Bạn là chuyên gia bệnh cây trồng Tây Nguyên (cà phê, sầu riêng, hồ tiêu, cây ăn trái). Quan sát ảnh và chẩn đoán. Chỉ trả về JSON:\n{"diagnosis":"tên bệnh nghi ngờ","confidence":85,"cause":"nguyên nhân ngắn gọn","recommendation":"cách xử lý cụ thể theo bước","urgency":"thấp|trung bình|cao"}\nconfidence là số 0-100. Nếu ảnh không phải cây trồng, đặt diagnosis="Không xác định" và confidence=0.`;
+    const prompt = `Bạn là chuyên gia bệnh cây trồng Tây Nguyên (cà phê, sầu riêng, hồ tiêu, cây ăn trái). Quan sát ảnh và chẩn đoán. Chỉ trả về JSON:\n{"diagn[...]
 
     const content = await callGemini({
       messages: [
