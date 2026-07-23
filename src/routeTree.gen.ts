@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedGardensRouteImport } from './routes/_authenticated/gardens'
+import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedLogsIndexRouteImport } from './routes/_authenticated/logs.index'
 import { Route as AuthenticatedLogsNewRouteImport } from './routes/_authenticated/logs.new'
 
@@ -35,6 +36,11 @@ const AuthenticatedGardensRoute = AuthenticatedGardensRouteImport.update({
   path: '/gardens',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLogsIndexRoute = AuthenticatedLogsIndexRouteImport.update({
   id: '/logs/',
   path: '/logs/',
@@ -49,12 +55,14 @@ const AuthenticatedLogsNewRoute = AuthenticatedLogsNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
   '/gardens': typeof AuthenticatedGardensRoute
   '/logs/new': typeof AuthenticatedLogsNewRoute
   '/logs/': typeof AuthenticatedLogsIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
   '/gardens': typeof AuthenticatedGardensRoute
   '/': typeof AuthenticatedIndexRoute
   '/logs/new': typeof AuthenticatedLogsNewRoute
@@ -64,6 +72,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/gardens': typeof AuthenticatedGardensRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/logs/new': typeof AuthenticatedLogsNewRoute
@@ -71,13 +80,14 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/gardens' | '/logs/new' | '/logs/'
+  fullPaths: '/' | '/auth' | '/assistant' | '/gardens' | '/logs/new' | '/logs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/gardens' | '/' | '/logs/new' | '/logs'
+  to: '/auth' | '/assistant' | '/gardens' | '/' | '/logs/new' | '/logs'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/assistant'
     | '/_authenticated/gardens'
     | '/_authenticated/'
     | '/_authenticated/logs/new'
@@ -119,6 +129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGardensRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/assistant': {
+      id: '/_authenticated/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/logs/': {
       id: '/_authenticated/logs/'
       path: '/logs'
@@ -137,6 +154,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedGardensRoute: typeof AuthenticatedGardensRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedLogsNewRoute: typeof AuthenticatedLogsNewRoute
@@ -144,6 +162,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedGardensRoute: AuthenticatedGardensRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedLogsNewRoute: AuthenticatedLogsNewRoute,
@@ -160,13 +179,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
