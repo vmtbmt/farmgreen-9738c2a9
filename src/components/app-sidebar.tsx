@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Sprout, NotebookPen, History, Leaf, LogOut, Sparkles, Stethoscope, FileText } from "lucide-react";
+import { LayoutDashboard, Sprout, NotebookPen, History, Leaf, LogOut, Sparkles, Stethoscope, FileText, CloudSun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -13,6 +13,7 @@ const items = [
   { title: "Khu vườn", url: "/gardens", icon: Sprout },
   { title: "Ghi nhật ký", url: "/logs/new", icon: NotebookPen },
   { title: "Lịch sử hoạt động", url: "/logs", icon: History },
+  { title: "Thời tiết", url: "/weather", icon: CloudSun },
   { title: "Trợ lý AI", url: "/assistant", icon: Sparkles },
   { title: "Chẩn đoán bệnh", url: "/diagnose", icon: Stethoscope },
   { title: "Báo cáo AI", url: "/reports", icon: FileText },
