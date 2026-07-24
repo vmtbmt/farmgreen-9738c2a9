@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedWeatherRouteImport } from './routes/_authenticated/weather'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedGardensRouteImport } from './routes/_authenticated/gardens'
 import { Route as AuthenticatedDiagnoseRouteImport } from './routes/_authenticated/diagnose'
@@ -31,6 +32,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWeatherRoute = AuthenticatedWeatherRouteImport.update({
+  id: '/weather',
+  path: '/weather',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/diagnose': typeof AuthenticatedDiagnoseRoute
   '/gardens': typeof AuthenticatedGardensRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/weather': typeof AuthenticatedWeatherRoute
   '/logs/new': typeof AuthenticatedLogsNewRoute
   '/logs/': typeof AuthenticatedLogsIndexRoute
 }
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/diagnose': typeof AuthenticatedDiagnoseRoute
   '/gardens': typeof AuthenticatedGardensRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/weather': typeof AuthenticatedWeatherRoute
   '/': typeof AuthenticatedIndexRoute
   '/logs/new': typeof AuthenticatedLogsNewRoute
   '/logs': typeof AuthenticatedLogsIndexRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/_authenticated/diagnose': typeof AuthenticatedDiagnoseRoute
   '/_authenticated/gardens': typeof AuthenticatedGardensRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/weather': typeof AuthenticatedWeatherRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/logs/new': typeof AuthenticatedLogsNewRoute
   '/_authenticated/logs/': typeof AuthenticatedLogsIndexRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/diagnose'
     | '/gardens'
     | '/reports'
+    | '/weather'
     | '/logs/new'
     | '/logs/'
   fileRoutesByTo: FileRoutesByTo
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/diagnose'
     | '/gardens'
     | '/reports'
+    | '/weather'
     | '/'
     | '/logs/new'
     | '/logs'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/_authenticated/diagnose'
     | '/_authenticated/gardens'
     | '/_authenticated/reports'
+    | '/_authenticated/weather'
     | '/_authenticated/'
     | '/_authenticated/logs/new'
     | '/_authenticated/logs/'
@@ -156,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/weather': {
+      id: '/_authenticated/weather'
+      path: '/weather'
+      fullPath: '/weather'
+      preLoaderRoute: typeof AuthenticatedWeatherRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/reports': {
@@ -208,6 +227,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDiagnoseRoute: typeof AuthenticatedDiagnoseRoute
   AuthenticatedGardensRoute: typeof AuthenticatedGardensRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedWeatherRoute: typeof AuthenticatedWeatherRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedLogsNewRoute: typeof AuthenticatedLogsNewRoute
   AuthenticatedLogsIndexRoute: typeof AuthenticatedLogsIndexRoute
@@ -218,6 +238,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDiagnoseRoute: AuthenticatedDiagnoseRoute,
   AuthenticatedGardensRoute: AuthenticatedGardensRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedWeatherRoute: AuthenticatedWeatherRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedLogsNewRoute: AuthenticatedLogsNewRoute,
   AuthenticatedLogsIndexRoute: AuthenticatedLogsIndexRoute,

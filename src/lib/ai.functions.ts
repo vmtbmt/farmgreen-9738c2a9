@@ -48,9 +48,9 @@ function buildDataSummary(gardens: GardenRow[], logs: LogRow[]) {
   return `KHU VƯỜN (${gardens.length}):\n${gLines.join("\n") || "(chưa có)"}\n\nNHẬT KÝ (${logs.length} bản ghi, hiển thị mới nhất):\n${lLines.join("\n") || "(chưa có)"}`;
 }
 
-const FARM_PROMPT = `Bạn là trợ lý nông trại AI cá nhân. Trả lời NGẮN GỌN, RÕ RÀNG bằng tiếng Việt, dựa CHÍNH XÁC trên dữ liệu khu vườn và nhật ký của [...]
+const FARM_PROMPT = `Bạn là trợ lý nông trại AI cá nhân. Trả lời NGẮN GỌN, RÕ RÀNG bằng tiếng Việt, dựa CHÍNH XÁC trên dữ liệu khu vườn và nhật ký của người dùng được cung cấp bên dưới. Nếu thiếu dữ liệu, nói rõ. Ưu tiên số liệu cụ thể (số lần, chi phí, ngày).`;
 
-const EXPERT_PROMPT = `Bạn là CHUYÊN GIA NÔNG NGHIỆP TÂY NGUYÊN, chuyên sâu về cà phê, sầu riêng, hồ tiêu và cây ăn trái, ưu tiên điều kiện canh tác tại Đắk L[...]
+const EXPERT_PROMPT = `Bạn là CHUYÊN GIA NÔNG NGHIỆP TÂY NGUYÊN, chuyên sâu về cà phê, sầu riêng, hồ tiêu và cây ăn trái, ưu tiên điều kiện canh tác tại Đắk Lắk, Lâm Đồng, Gia Lai. Trả lời NGẮN GỌN, THỰC TIỄN bằng tiếng Việt, có bước hành động rõ ràng.`;
 
 const ChatInput = z.object({
   mode: z.enum(["farm", "expert"]),
@@ -91,7 +91,7 @@ export const generateMonthlyReport = createServerFn({ method: "POST" })
     const top = Object.entries(costByGarden).sort((a, b) => b[1] - a[1])[0];
     const topGarden = top ? { name: gById.get(top[0])?.name ?? "?", cost: top[1] } : null;
 
-    const prompt = `Hãy phân tích dữ liệu nông trại tháng ${month} và trả về JSON:\n{"overview":"tóm tắt 2-3 câu","observations":["nhận xét 1","..."],"risks":["rủi ro 1",[...]
+    const prompt = `Hãy phân tích dữ liệu nông trại tháng ${month} và trả về JSON hợp lệ dạng {"overview":"tóm tắt 2-3 câu","observations":["nhận xét 1"],"risks":["rủi ro 1"],"recommendations":["đề xuất 1"]}. Dữ liệu:\n${buildDataSummary(gardens, logs)}\nTổng kết: ${JSON.stringify(summary)}`;
 
     let ai = { overview: "", observations: [] as string[], risks: [] as string[], recommendations: [] as string[] };
     try {
@@ -123,7 +123,7 @@ export const diagnoseDisease = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => DiagnoseInput.parse(d))
   .handler(async ({ data, context }) => {
-    const prompt = `Bạn là chuyên gia bệnh cây trồng Tây Nguyên (cà phê, sầu riêng, hồ tiêu, cây ăn trái). Quan sát ảnh và chẩn đoán. Chỉ trả về JSON:\n{"diagn[...]
+    const prompt = `Bạn là chuyên gia bệnh cây trồng Tây Nguyên (cà phê, sầu riêng, hồ tiêu, cây ăn trái). Quan sát ảnh và chẩn đoán. Chỉ trả JSON hợp lệ dạng {"diagnosis":"","confidence":0.0,"cause":"","recommendation":"","urgency":"thấp|trung bình|cao"}.`;
 
     const content = await callGemini({
       messages: [
@@ -159,4 +159,46 @@ export const diagnoseDisease = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
     return inserted;
+  });
+
+export const analyzeFarm = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { gardens, logs } = await loadContext(context.supabase);
+    const month = new Date().toISOString().slice(0, 7);
+    const monthLogs = logs.filter((l) => l.date.startsWith(month));
+    const totalCost = monthLogs.reduce((s, l) => s + Number(l.cost || 0), 0);
+    const byGardenAct: Record<string, number> = {};
+    const byGardenCost: Record<string, number> = {};
+    for (const l of monthLogs) {
+      byGardenAct[l.garden_id] = (byGardenAct[l.garden_id] || 0) + 1;
+      byGardenCost[l.garden_id] = (byGardenCost[l.garden_id] || 0) + Number(l.cost || 0);
+    }
+    const gName = (id: string) => gardens.find((g) => g.id === id)?.name ?? "?";
+    const topAct = Object.entries(byGardenAct).sort((a, b) => b[1] - a[1])[0];
+    const topCost = Object.entries(byGardenCost).sort((a, b) => b[1] - a[1])[0];
+
+    const alerts: { level: "warn" | "danger"; message: string }[] = [];
+    const now = Date.now();
+    for (const g of gardens) {
+      const last = logs.find((l) => l.garden_id === g.id);
+      if (!last) {
+        alerts.push({ level: "warn", message: `Khu "${g.name}" chưa có nhật ký hoạt động nào.` });
+        continue;
+      }
+      const days = Math.floor((now - new Date(last.date).getTime()) / 86400000);
+      if (days >= 14) alerts.push({ level: "danger", message: `Khu "${g.name}" đã ${days} ngày chưa cập nhật.` });
+      else if (days >= 7) alerts.push({ level: "warn", message: `Khu "${g.name}" đã ${days} ngày chưa có hoạt động.` });
+    }
+
+    return {
+      summary: {
+        activities_this_month: monthLogs.length,
+        total_cost: totalCost,
+        top_activity_garden: topAct ? gName(topAct[0]) : null,
+        top_cost_garden: topCost ? gName(topCost[0]) : null,
+      },
+      recommendations: [] as string[],
+      alerts,
+    };
   });

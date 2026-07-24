@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useFarmStore } from "@/lib/farm-store";
 import { DashboardAI } from "@/components/dashboard-ai";
+import { WeatherCard } from "@/components/weather-card";
+import { WeatherAlert } from "@/components/weather-alert";
+import { TodayTasks } from "@/components/today-tasks";
+import { SprayTiming } from "@/components/spray-timing";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -63,31 +67,43 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Tổng số khu vườn"
-          value={gardens.length}
-          hint="khu đang quản lý"
-          icon={<Sprout className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Tổng diện tích"
-          value={stats.totalArea.toLocaleString("vi-VN")}
-          hint="m² canh tác"
-          icon={<Ruler className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Nhật ký hoạt động"
-          value={logs.length}
-          hint="lượt ghi nhận"
-          icon={<NotebookPen className="h-5 w-5" />}
-        />
-        <StatCard
-          label="Hoạt động 7 ngày"
-          value={stats.last7}
-          hint="gần đây"
-          icon={<TrendingUp className="h-5 w-5" />}
-        />
+      <WeatherAlert />
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-1">
+          <WeatherCard />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:col-span-2">
+          <StatCard
+            label="Tổng số khu vườn"
+            value={gardens.length}
+            hint="khu đang quản lý"
+            icon={<Sprout className="h-5 w-5" />}
+          />
+          <StatCard
+            label="Tổng diện tích"
+            value={stats.totalArea.toLocaleString("vi-VN")}
+            hint="m² canh tác"
+            icon={<Ruler className="h-5 w-5" />}
+          />
+          <StatCard
+            label="Nhật ký hoạt động"
+            value={logs.length}
+            hint="lượt ghi nhận"
+            icon={<NotebookPen className="h-5 w-5" />}
+          />
+          <StatCard
+            label="Hoạt động 7 ngày"
+            value={stats.last7}
+            hint="gần đây"
+            icon={<TrendingUp className="h-5 w-5" />}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <TodayTasks />
+        <SprayTiming />
       </div>
 
       <DashboardAI />
