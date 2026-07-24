@@ -28,7 +28,7 @@ export const parseFarmLog = createServerFn({ method: "POST" })
           {
             role: "system",
             content:
-              'Bạn là trợ lý phân tích nhật ký nông trại tiếng Việt. Trích xuất thông tin từ câu người dùng và CHỈ trả về JSON hợp lệ dạng {"activity_type":""[...]
+              'Bạn là trợ lý phân tích nhật ký nông trại tiếng Việt. Trích xuất thông tin và CHỈ trả về JSON hợp lệ dạng {"activity_type":"","quantity":"","material":"","field_name":""}. activity_type thuộc: Tưới nước, Bón phân, Phun thuốc, Gieo trồng, Thu hoạch, Làm cỏ, Khác. Không thêm giải thích.',
           },
           { role: "user", content: data.text },
         ],
