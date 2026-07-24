@@ -160,3 +160,45 @@ export const diagnoseDisease = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return inserted;
   });
+
+export const analyzeFarm = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { gardens, logs } = await loadContext(context.supabase);
+    const month = new Date().toISOString().slice(0, 7);
+    const monthLogs = logs.filter((l) => l.date.startsWith(month));
+    const totalCost = monthLogs.reduce((s, l) => s + Number(l.cost || 0), 0);
+    const byGardenAct: Record<string, number> = {};
+    const byGardenCost: Record<string, number> = {};
+    for (const l of monthLogs) {
+      byGardenAct[l.garden_id] = (byGardenAct[l.garden_id] || 0) + 1;
+      byGardenCost[l.garden_id] = (byGardenCost[l.garden_id] || 0) + Number(l.cost || 0);
+    }
+    const gName = (id: string) => gardens.find((g) => g.id === id)?.name ?? "?";
+    const topAct = Object.entries(byGardenAct).sort((a, b) => b[1] - a[1])[0];
+    const topCost = Object.entries(byGardenCost).sort((a, b) => b[1] - a[1])[0];
+
+    const alerts: { level: "warn" | "danger"; message: string }[] = [];
+    const now = Date.now();
+    for (const g of gardens) {
+      const last = logs.find((l) => l.garden_id === g.id);
+      if (!last) {
+        alerts.push({ level: "warn", message: `Khu "${g.name}" chưa có nhật ký hoạt động nào.` });
+        continue;
+      }
+      const days = Math.floor((now - new Date(last.date).getTime()) / 86400000);
+      if (days >= 14) alerts.push({ level: "danger", message: `Khu "${g.name}" đã ${days} ngày chưa cập nhật.` });
+      else if (days >= 7) alerts.push({ level: "warn", message: `Khu "${g.name}" đã ${days} ngày chưa có hoạt động.` });
+    }
+
+    return {
+      summary: {
+        activities_this_month: monthLogs.length,
+        total_cost: totalCost,
+        top_activity_garden: topAct ? gName(topAct[0]) : null,
+        top_cost_garden: topCost ? gName(topCost[0]) : null,
+      },
+      recommendations: [] as string[],
+      alerts,
+    };
+  });

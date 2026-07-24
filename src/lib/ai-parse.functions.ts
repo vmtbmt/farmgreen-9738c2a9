@@ -1,18 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { getServerSession } from "@lovable.dev/cloud-auth-js";
+
 
 const InputSchema = z.object({ text: z.string().min(1) });
 
 export const parseFarmLog = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
-    // Authentication check - require authenticated user
-    const session = await getServerSession();
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized: Please log in to use this feature");
-    }
-
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
