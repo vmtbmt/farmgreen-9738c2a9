@@ -48,9 +48,9 @@ function buildDataSummary(gardens: GardenRow[], logs: LogRow[]) {
   return `KHU VƯỜN (${gardens.length}):\n${gLines.join("\n") || "(chưa có)"}\n\nNHẬT KÝ (${logs.length} bản ghi, hiển thị mới nhất):\n${lLines.join("\n") || "(chưa có)"}`;
 }
 
-const FARM_PROMPT = `Bạn là trợ lý nông trại AI cá nhân. Trả lời NGẮN GỌN, RÕ RÀNG bằng tiếng Việt, dựa CHÍNH XÁC trên dữ liệu khu vườn và nhật ký của [...]
+const FARM_PROMPT = `Bạn là trợ lý nông trại AI cá nhân. Trả lời NGẮN GỌN, RÕ RÀNG bằng tiếng Việt, dựa CHÍNH XÁC trên dữ liệu khu vườn và nhật ký của người dùng được cung cấp bên dưới. Nếu thiếu dữ liệu, nói rõ. Ưu tiên số liệu cụ thể (số lần, chi phí, ngày).`;
 
-const EXPERT_PROMPT = `Bạn là CHUYÊN GIA NÔNG NGHIỆP TÂY NGUYÊN, chuyên sâu về cà phê, sầu riêng, hồ tiêu và cây ăn trái, ưu tiên điều kiện canh tác tại Đắk L[...]
+const EXPERT_PROMPT = `Bạn là CHUYÊN GIA NÔNG NGHIỆP TÂY NGUYÊN, chuyên sâu về cà phê, sầu riêng, hồ tiêu và cây ăn trái, ưu tiên điều kiện canh tác tại Đắk Lắk, Lâm Đồng, Gia Lai. Trả lời NGẮN GỌN, THỰC TIỄN bằng tiếng Việt, có bước hành động rõ ràng.`;
 
 const ChatInput = z.object({
   mode: z.enum(["farm", "expert"]),
@@ -91,7 +91,7 @@ export const generateMonthlyReport = createServerFn({ method: "POST" })
     const top = Object.entries(costByGarden).sort((a, b) => b[1] - a[1])[0];
     const topGarden = top ? { name: gById.get(top[0])?.name ?? "?", cost: top[1] } : null;
 
-    const prompt = `Hãy phân tích dữ liệu nông trại tháng ${month} và trả về JSON:\n{"overview":"tóm tắt 2-3 câu","observations":["nhận xét 1","..."],"risks":["rủi ro 1",[...]
+    const prompt = `Hãy phân tích dữ liệu nông trại tháng ${month} và trả về JSON hợp lệ dạng {"overview":"tóm tắt 2-3 câu","observations":["nhận xét 1"],"risks":["rủi ro 1"],"recommendations":["đề xuất 1"]}. Dữ liệu:\n${buildDataSummary(gardens, logs)}\nTổng kết: ${JSON.stringify(summary)}`;
 
     let ai = { overview: "", observations: [] as string[], risks: [] as string[], recommendations: [] as string[] };
     try {
@@ -123,7 +123,7 @@ export const diagnoseDisease = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => DiagnoseInput.parse(d))
   .handler(async ({ data, context }) => {
-    const prompt = `Bạn là chuyên gia bệnh cây trồng Tây Nguyên (cà phê, sầu riêng, hồ tiêu, cây ăn trái). Quan sát ảnh và chẩn đoán. Chỉ trả về JSON:\n{"diagn[...]
+    const prompt = `Bạn là chuyên gia bệnh cây trồng Tây Nguyên (cà phê, sầu riêng, hồ tiêu, cây ăn trái). Quan sát ảnh và chẩn đoán. Chỉ trả JSON hợp lệ dạng {"diagnosis":"","confidence":0.0,"cause":"","recommendation":"","urgency":"thấp|trung bình|cao"}.`;
 
     const content = await callGemini({
       messages: [
