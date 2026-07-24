@@ -10,20 +10,19 @@ export type HourlyPoint = {
   time: string;
   temperature: number;
   humidity: number;
-  windSpeed: number;
-  rainfall: number;
   precipProbability: number;
+  rainfall: number;
   weatherCode: number;
+  windSpeed: number;
 };
 
 export type DailyPoint = {
   date: string;
-  tempMin: number;
   tempMax: number;
+  tempMin: number;
   precipProbability: number;
   rainfall: number;
   weatherCode: number;
-  description: string;
   emoji: string;
 };
 
@@ -41,22 +40,21 @@ export type WeatherResult = {
   daily: DailyPoint[];
 };
 
-const weatherDescriptions: Record<number, string> = {
-  0: "Trời quang", 1: "Hầu như quang", 2: "Cục bộ có mây", 3: "Nhiều mây",
-  45: "Sương mù", 48: "Sương đông",
-  51: "Mưa phùn nhẹ", 53: "Mưa phùn", 55: "Mưa phùn nặng",
-  61: "Mưa nhẹ", 63: "Mưa vừa", 65: "Mưa to",
-  71: "Tuyết nhẹ", 73: "Tuyết vừa", 75: "Tuyết to", 77: "Tuyết hạt",
-  80: "Mưa rào nhẹ", 81: "Mưa rào", 82: "Mưa rào lớn",
-  85: "Tuyết rào nhẹ", 86: "Tuyết rào lớn",
-  95: "Giông", 96: "Giông có mưa đá", 99: "Giông mưa đá lớn",
-};
-
-export function getWeatherDescription(code: number): string {
-  return weatherDescriptions[code] || "Không xác định";
+function getWeatherDescription(code: number): string {
+  const m: Record<number, string> = {
+    0: "Trời quang", 1: "Hầu như quang", 2: "Cục bộ có mây", 3: "Nhiều mây",
+    45: "Sương mù", 48: "Sương đông",
+    51: "Mưa phùn nhẹ", 53: "Mưa phùn vừa", 55: "Mưa phùn nặng",
+    61: "Mưa nhẹ", 63: "Mưa vừa", 65: "Mưa nặng",
+    71: "Tuyết nhẹ", 73: "Tuyết vừa", 75: "Tuyết nặng", 77: "Mưa tuyết",
+    80: "Mưa rào nhẹ", 81: "Mưa rào vừa", 82: "Mưa rào lớn",
+    85: "Tuyết rào nhẹ", 86: "Tuyết rào nặng",
+    95: "Giông", 96: "Giông + mưa đá nhẹ", 99: "Giông + mưa đá nặng",
+  };
+  return m[code] || "Không xác định";
 }
 
-export function getWeatherEmoji(code: number): string {
+function getWeatherEmoji(code: number): string {
   if (code === 0 || code === 1) return "☀️";
   if (code === 2) return "🌤️";
   if (code === 3) return "☁️";
@@ -71,17 +69,11 @@ async function reverseGeocode(lat: number, lon: number): Promise<string> {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-      { headers: { "User-Agent": "NongTraiXanh" } }
+      { headers: { "User-Agent": "FarmGreen" } },
     );
     const data = await res.json();
-    return (
-      data.address?.city ||
-      data.address?.town ||
-      data.address?.village ||
-      data.address?.county ||
-      data.address?.state ||
-      `${lat.toFixed(2)}, ${lon.toFixed(2)}`
-    );
+    const a = data.address || {};
+    return a.city || a.town || a.village || a.county || a.state || `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
   } catch {
     return `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
   }
@@ -93,9 +85,9 @@ export const getWeather = createServerFn({ method: "POST" })
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${data.latitude}&longitude=${data.longitude}` +
       `&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,rain,precipitation_probability` +
-      `&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,precipitation_probability,weather_code` +
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max` +
-      `&forecast_days=7&timezone=auto&wind_speed_unit=kmh&temperature_unit=celsius`;
+      `&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,rain,weather_code,wind_speed_10m` +
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum` +
+      `&forecast_days=7&timezone=auto`;
 
     const res = await fetch(url);
     if (!res.ok) throw new Error("Không thể lấy dữ liệu thời tiết");
@@ -104,24 +96,23 @@ export const getWeather = createServerFn({ method: "POST" })
     const current = json.current;
     const location = await reverseGeocode(data.latitude, data.longitude);
 
-    const hourly: HourlyPoint[] = (json.hourly?.time ?? []).map((t: string, i: number) => ({
+    const hourly: HourlyPoint[] = (json.hourly?.time || []).map((t: string, i: number) => ({
       time: t,
       temperature: Math.round(json.hourly.temperature_2m[i]),
-      humidity: json.hourly.relative_humidity_2m[i],
-      windSpeed: Math.round(json.hourly.wind_speed_10m[i] * 10) / 10,
-      rainfall: json.hourly.precipitation[i] ?? 0,
+      humidity: Math.round(json.hourly.relative_humidity_2m[i]),
       precipProbability: json.hourly.precipitation_probability?.[i] ?? 0,
+      rainfall: json.hourly.rain?.[i] ?? 0,
       weatherCode: json.hourly.weather_code[i],
+      windSpeed: Math.round((json.hourly.wind_speed_10m[i] ?? 0) * 10) / 10,
     }));
 
-    const daily: DailyPoint[] = (json.daily?.time ?? []).map((t: string, i: number) => ({
+    const daily: DailyPoint[] = (json.daily?.time || []).map((t: string, i: number) => ({
       date: t,
-      tempMin: Math.round(json.daily.temperature_2m_min[i]),
       tempMax: Math.round(json.daily.temperature_2m_max[i]),
+      tempMin: Math.round(json.daily.temperature_2m_min[i]),
       precipProbability: json.daily.precipitation_probability_max?.[i] ?? 0,
       rainfall: json.daily.precipitation_sum?.[i] ?? 0,
       weatherCode: json.daily.weather_code[i],
-      description: getWeatherDescription(json.daily.weather_code[i]),
       emoji: getWeatherEmoji(json.daily.weather_code[i]),
     }));
 
