@@ -66,18 +66,24 @@ function getWeatherEmoji(code: number): string {
 }
 
 async function reverseGeocode(lat: number, lon: number): Promise<string> {
+  const fallback = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
   try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 2500);
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-      { headers: { "User-Agent": "FarmGreen" } },
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
+      { headers: { "User-Agent": "FarmGreen/1.0 (contact@farmgreen.app)" }, signal: ctrl.signal },
     );
+    clearTimeout(timer);
+    if (!res.ok) return fallback;
     const data = await res.json();
     const a = data.address || {};
-    return a.city || a.town || a.village || a.county || a.state || `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+    return a.city || a.town || a.village || a.county || a.state || fallback;
   } catch {
-    return `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+    return fallback;
   }
 }
+
 
 export const getWeather = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => WeatherInput.parse(d))
