@@ -96,11 +96,13 @@ export const getWeather = createServerFn({ method: "POST" })
       `&forecast_days=7&timezone=auto`;
 
     const res = await fetch(url);
-    if (!res.ok) throw new Error("Không thể lấy dữ liệu thời tiết");
+    if (!res.ok) throw new Error(`Không thể lấy dữ liệu thời tiết (HTTP ${res.status})`);
     const json = await res.json();
+    if (!json?.current) throw new Error("Dữ liệu thời tiết không hợp lệ");
 
     const current = json.current;
     const location = await reverseGeocode(data.latitude, data.longitude);
+
 
     const hourly: HourlyPoint[] = (json.hourly?.time || []).map((t: string, i: number) => ({
       time: t,
