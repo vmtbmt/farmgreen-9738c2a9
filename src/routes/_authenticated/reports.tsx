@@ -191,7 +191,7 @@ function ReportsPage() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => { setReport({ id: r.id, ...r } as unknown as Report); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                    <Button size="sm" variant="ghost" onClick={() => { setReport(r as unknown as Report); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
                       <Eye className="h-4 w-4" /> Xem
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => exportExcel(r)}>
