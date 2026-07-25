@@ -58,6 +58,42 @@ export type Database = {
           },
         ]
       }
+      ai_reports: {
+        Row: {
+          ai: Json
+          created_at: string
+          id: string
+          month: string
+          summary: Json
+          title: string
+          top_garden: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai?: Json
+          created_at?: string
+          id?: string
+          month: string
+          summary?: Json
+          title?: string
+          top_garden?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai?: Json
+          created_at?: string
+          id?: string
+          month?: string
+          summary?: Json
+          title?: string
+          top_garden?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       disease_checks: {
         Row: {
           cause: string
