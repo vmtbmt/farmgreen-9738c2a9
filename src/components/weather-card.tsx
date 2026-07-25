@@ -5,16 +5,25 @@ import { Button } from "@/components/ui/button";
 import { useWeather } from "@/lib/use-weather";
 
 export function WeatherCard() {
-  const { data, isLoading, isFetching, refetch, location, requestGPS } = useWeather();
+  const { data, isLoading, isFetching, isError, error, refetch, location, requestGPS } = useWeather();
 
   return (
     <Card className="overflow-hidden border-none bg-gradient-to-br from-sky-500 via-sky-600 to-emerald-600 text-white shadow-lg">
       <CardContent className="p-5">
-        {isLoading || !data ? (
+        {isError && !data ? (
+          <div className="space-y-3">
+            <p className="text-sm font-medium">Không tải được thời tiết</p>
+            <p className="text-xs opacity-90">{error instanceof Error ? error.message : "Lỗi mạng"}</p>
+            <Button size="sm" variant="secondary" onClick={() => refetch()}>
+              <RefreshCw className="mr-2 h-4 w-4" /> Thử lại
+            </Button>
+          </div>
+        ) : isLoading || !data ? (
           <div className="flex items-center gap-2 text-sm">
             <Loader2 className="h-4 w-4 animate-spin" /> Đang tải thời tiết...
           </div>
         ) : (
+
           <div className="space-y-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">

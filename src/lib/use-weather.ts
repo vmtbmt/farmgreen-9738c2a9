@@ -107,7 +107,10 @@ export function useWeather() {
     staleTime: 30 * 60 * 1000, // 30 phút cache
     gcTime: 60 * 60 * 1000,
     refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: (i) => Math.min(1500 * (i + 1), 5000),
   });
+
 
   return { ...query, location, locationStatus: status, requestGPS, setManual };
 }

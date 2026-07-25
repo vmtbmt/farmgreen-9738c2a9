@@ -111,8 +111,52 @@ export const generateMonthlyReport = createServerFn({ method: "POST" })
       };
     } catch {}
 
-    return { month, summary, topGarden, ai };
+    const title = `Báo cáo tháng ${month}`;
+    const { data: saved, error } = await context.supabase
+      .from("ai_reports")
+      .insert({
+        user_id: context.userId,
+        month,
+        title,
+        summary,
+        top_garden: topGarden,
+        ai,
+      })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+
+    return { id: saved.id, created_at: saved.created_at, month, title, summary, topGarden, ai };
   });
+
+export const listReports = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("ai_reports")
+      .select("id, month, title, summary, top_garden, ai, created_at")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r: any) => ({
+      id: r.id as string,
+      month: r.month as string,
+      title: r.title as string,
+      summary: r.summary as { total_activities: number; watering: number; fertilizing: number; spraying: number; total_cost: number },
+      topGarden: r.top_garden as { name: string; cost: number } | null,
+      ai: r.ai as { overview: string; observations: string[]; risks: string[]; recommendations: string[] },
+      created_at: r.created_at as string,
+    }));
+  });
+
+export const deleteReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("ai_reports").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 
 const DiagnoseInput = z.object({
   imageDataUrl: z.string().startsWith("data:image/"),
