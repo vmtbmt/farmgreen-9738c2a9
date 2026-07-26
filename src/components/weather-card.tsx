@@ -1,21 +1,48 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Loader2, MapPin, Droplets, Wind, CloudRain, RefreshCw, Locate } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useWeather } from "@/lib/use-weather";
 
+const COOLDOWN_SECONDS = 60;
+
 export function WeatherCard() {
   const { data, isLoading, isFetching, isError, error, refetch, location, requestGPS } = useWeather();
+  const isRateLimited = error instanceof Error && /429/.test(error.message);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (isRateLimited) setCooldown(COOLDOWN_SECONDS);
+  }, [isRateLimited, error]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
+
+  const handleRefetch = () => {
+    if (cooldown > 0) return;
+    refetch();
+  };
 
   return (
     <Card className="overflow-hidden border-none bg-gradient-to-br from-sky-500 via-sky-600 to-emerald-600 text-white shadow-lg">
       <CardContent className="p-5">
         {isError && !data ? (
           <div className="space-y-3">
-            <p className="text-sm font-medium">Không tải được thời tiết</p>
-            <p className="text-xs opacity-90">{error instanceof Error ? error.message : "Lỗi mạng"}</p>
-            <Button size="sm" variant="secondary" onClick={() => refetch()}>
-              <RefreshCw className="mr-2 h-4 w-4" /> Thử lại
+            <p className="text-sm font-medium">
+              {isRateLimited ? "Máy chủ thời tiết đang bận" : "Không tải được thời tiết"}
+            </p>
+            <p className="text-xs opacity-90">
+              {isRateLimited
+                ? "Đã vượt giới hạn truy vấn. Vui lòng thử lại sau giây lát."
+                : error instanceof Error ? error.message : "Lỗi mạng"}
+            </p>
+            <Button size="sm" variant="secondary" onClick={handleRefetch} disabled={cooldown > 0 || isFetching}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              {cooldown > 0 ? `Thử lại sau ${cooldown}s` : "Thử lại"}
             </Button>
           </div>
         ) : isLoading || !data ? (
