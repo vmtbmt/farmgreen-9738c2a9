@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { getWeather, type WeatherResult } from "./weather.functions";
 
 const LOCATION_KEY = "farm-weather-location";
+const CACHE_PREFIX = "farm-weather-cache:";
+const CACHE_TTL = 30 * 60 * 1000; // 30 phút
 const DEFAULT_LOCATION = { latitude: 12.6667, longitude: 108.05, label: "Buôn Ma Thuột (mặc định)" };
 
 export type SavedLocation = {
@@ -27,6 +29,40 @@ export function loadSavedLocation(): SavedLocation | null {
 export function saveLocation(loc: SavedLocation) {
   if (typeof window === "undefined") return;
   localStorage.setItem(LOCATION_KEY, JSON.stringify(loc));
+}
+
+// Làm tròn toạ độ để cache key ổn định (tránh GPS jitter tạo key mới liên tục)
+function roundCoord(n: number) {
+  return Math.round(n * 100) / 100;
+}
+
+function cacheKey(lat: number, lon: number) {
+  return `${CACHE_PREFIX}${roundCoord(lat)},${roundCoord(lon)}`;
+}
+
+type CachedWeather = { data: WeatherResult; timestamp: number };
+
+function readCache(lat: number, lon: number): CachedWeather | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(cacheKey(lat, lon));
+    if (!raw) return null;
+    return JSON.parse(raw) as CachedWeather;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(lat: number, lon: number, data: WeatherResult) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(
+      cacheKey(lat, lon),
+      JSON.stringify({ data, timestamp: Date.now() } satisfies CachedWeather),
+    );
+  } catch {
+    // ignore quota errors
+  }
 }
 
 export function useLocation() {
@@ -99,18 +135,48 @@ export function useWeather() {
   const { location, status, requestGPS, setManual } = useLocation();
   const fetchWeather = useServerFn(getWeather);
 
+  // Dùng toạ độ đã làm tròn làm key để tránh gọi lại khi GPS lệch nhẹ
+  const lat = location ? roundCoord(location.latitude) : undefined;
+  const lon = location ? roundCoord(location.longitude) : undefined;
+
+  const cached = location ? readCache(location.latitude, location.longitude) : null;
+
   const query = useQuery<WeatherResult>({
-    queryKey: ["weather", location?.latitude, location?.longitude],
-    queryFn: () =>
-      fetchWeather({ data: { latitude: location!.latitude, longitude: location!.longitude } }),
+    queryKey: ["weather", lat, lon],
+    queryFn: async () => {
+      // Nếu cache còn tươi, tránh gọi API
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+      }
+      try {
+        const result = await fetchWeather({
+          data: { latitude: location!.latitude, longitude: location!.longitude },
+        });
+        writeCache(location!.latitude, location!.longitude, result);
+        return result;
+      } catch (err) {
+        // Khi bị 429, fallback về cache cũ (nếu có) để không vỡ UI
+        if (cached && err instanceof Error && /429/.test(err.message)) {
+          return cached.data;
+        }
+        throw err;
+      }
+    },
     enabled: !!location,
-    staleTime: 30 * 60 * 1000, // 30 phút cache
+    initialData: cached && Date.now() - cached.timestamp < CACHE_TTL ? cached.data : undefined,
+    initialDataUpdatedAt: cached?.timestamp,
+    staleTime: CACHE_TTL,
     gcTime: 60 * 60 * 1000,
     refetchOnWindowFocus: false,
-    retry: 2,
-    retryDelay: (i) => Math.min(1500 * (i + 1), 5000),
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: (failureCount, err) => {
+      // Không retry khi bị rate-limit
+      if (err instanceof Error && /429/.test(err.message)) return false;
+      return failureCount < 1;
+    },
+    retryDelay: (i) => Math.min(2000 * (i + 1), 8000),
   });
-
 
   return { ...query, location, locationStatus: status, requestGPS, setManual };
 }
