@@ -40,7 +40,7 @@ export function WeatherCard() {
                 ? "Đã vượt giới hạn truy vấn. Vui lòng thử lại sau giây lát."
                 : error instanceof Error ? error.message : "Lỗi mạng"}
             </p>
-            <Button size="sm" variant="secondary" onClick={handleRefetch} disabled={cooldown > 0 || isFetching}>
+            <Button size="sm" variant="secondary" onClick={handleRefresh} disabled={cooldown > 0 || isFetching}>
               <RefreshCw className="mr-2 h-4 w-4" />
               {cooldown > 0 ? `Thử lại sau ${cooldown}s` : "Thử lại"}
             </Button>
