@@ -21,24 +21,24 @@ export const Route = createFileRoute("/_authenticated/weather")({
 const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
 function WeatherPage() {
-  const { data, isLoading, isFetching, refetch, location, requestGPS } = useWeather();
+  const { data, isLoading, isFetching, refresh, location, requestGPS } = useWeather();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 overflow-x-hidden p-4 sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Thời tiết nông nghiệp</h1>
+        <div className="min-w-0">
+          <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">Thời tiết nông nghiệp</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Dữ liệu Open-Meteo · cập nhật mỗi 30 phút
+            Dữ liệu Open-Meteo · cache 30 phút
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={requestGPS}>
             <Locate className="h-4 w-4" /> Vị trí GPS
           </Button>
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+          <Button variant="outline" size="sm" onClick={() => refresh()} disabled={isFetching}>
             {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            Làm mới
+            Cập nhật thời tiết
           </Button>
         </div>
       </div>

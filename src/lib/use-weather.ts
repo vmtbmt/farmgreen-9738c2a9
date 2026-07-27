@@ -144,9 +144,9 @@ export function useWeather() {
   const query = useQuery<WeatherResult>({
     queryKey: ["weather", lat, lon],
     queryFn: async () => {
-      // Nếu cache còn tươi, tránh gọi API
-      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        return cached.data;
+      const fresh = location ? readCache(location.latitude, location.longitude) : null;
+      if (fresh && Date.now() - fresh.timestamp < CACHE_TTL) {
+        return fresh.data;
       }
       try {
         const result = await fetchWeather({
@@ -155,28 +155,39 @@ export function useWeather() {
         writeCache(location!.latitude, location!.longitude, result);
         return result;
       } catch (err) {
-        // Khi bị 429, fallback về cache cũ (nếu có) để không vỡ UI
-        if (cached && err instanceof Error && /429/.test(err.message)) {
-          return cached.data;
-        }
+        // Bị 429 hoặc lỗi mạng: fallback về cache cũ (nếu có) để không vỡ UI
+        if (fresh) return fresh.data;
         throw err;
       }
     },
     enabled: !!location,
-    initialData: cached && Date.now() - cached.timestamp < CACHE_TTL ? cached.data : undefined,
+    // Luôn cung cấp cache (kể cả cũ) — RQ tự refetch khi initialDataUpdatedAt cũ hơn staleTime
+    initialData: cached?.data,
     initialDataUpdatedAt: cached?.timestamp,
     staleTime: CACHE_TTL,
-    gcTime: 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
     refetchOnReconnect: false,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
     retry: (failureCount, err) => {
-      // Không retry khi bị rate-limit
       if (err instanceof Error && /429/.test(err.message)) return false;
       return failureCount < 1;
     },
     retryDelay: (i) => Math.min(2000 * (i + 1), 8000),
   });
 
-  return { ...query, location, locationStatus: status, requestGPS, setManual };
+  // Cập nhật thủ công: xoá cache rồi refetch để bắt buộc gọi API mới
+  const refresh = () => {
+    if (location && typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(cacheKey(location.latitude, location.longitude));
+      } catch {
+        // ignore
+      }
+    }
+    return query.refetch();
+  };
+
+  return { ...query, location, locationStatus: status, requestGPS, setManual, refresh };
 }

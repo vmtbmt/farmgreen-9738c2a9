@@ -16,16 +16,16 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthenticatedLayout() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
+      <div className="flex min-h-screen w-full overflow-x-hidden bg-background">
         <AppSidebar />
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
             <SidebarTrigger />
-            <div className="text-sm font-medium text-muted-foreground">
+            <div className="truncate text-sm font-medium text-muted-foreground">
               Bảng điều khiển nông trại
             </div>
           </header>
-          <main className="flex-1">
+          <main className="min-w-0 flex-1 overflow-x-hidden">
             <Outlet />
           </main>
         </div>

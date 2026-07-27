@@ -8,7 +8,7 @@ import { useWeather } from "@/lib/use-weather";
 const COOLDOWN_SECONDS = 60;
 
 export function WeatherCard() {
-  const { data, isLoading, isFetching, isError, error, refetch, location, requestGPS } = useWeather();
+  const { data, isLoading, isFetching, isError, error, refresh, location, requestGPS } = useWeather();
   const isRateLimited = error instanceof Error && /429/.test(error.message);
   const [cooldown, setCooldown] = useState(0);
 
@@ -22,9 +22,9 @@ export function WeatherCard() {
     return () => clearInterval(t);
   }, [cooldown]);
 
-  const handleRefetch = () => {
-    if (cooldown > 0) return;
-    refetch();
+  const handleRefresh = () => {
+    if (cooldown > 0 || isFetching) return;
+    refresh();
   };
 
   return (
@@ -40,7 +40,7 @@ export function WeatherCard() {
                 ? "Đã vượt giới hạn truy vấn. Vui lòng thử lại sau giây lát."
                 : error instanceof Error ? error.message : "Lỗi mạng"}
             </p>
-            <Button size="sm" variant="secondary" onClick={handleRefetch} disabled={cooldown > 0 || isFetching}>
+            <Button size="sm" variant="secondary" onClick={handleRefresh} disabled={cooldown > 0 || isFetching}>
               <RefreshCw className="mr-2 h-4 w-4" />
               {cooldown > 0 ? `Thử lại sau ${cooldown}s` : "Thử lại"}
             </Button>
@@ -69,9 +69,9 @@ export function WeatherCard() {
                   size="icon"
                   variant="ghost"
                   className="h-8 w-8 text-white hover:bg-white/20"
-                  onClick={() => refetch()}
-                  disabled={isFetching}
-                  aria-label="Cập nhật"
+                  onClick={handleRefresh}
+                  disabled={isFetching || cooldown > 0}
+                  aria-label="Cập nhật thời tiết"
                 >
                   {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 </Button>
