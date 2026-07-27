@@ -8,7 +8,7 @@ import { useWeather } from "@/lib/use-weather";
 const COOLDOWN_SECONDS = 60;
 
 export function WeatherCard() {
-  const { data, isLoading, isFetching, isError, error, refetch, location, requestGPS } = useWeather();
+  const { data, isLoading, isFetching, isError, error, refresh, location, requestGPS } = useWeather();
   const isRateLimited = error instanceof Error && /429/.test(error.message);
   const [cooldown, setCooldown] = useState(0);
 
@@ -22,9 +22,9 @@ export function WeatherCard() {
     return () => clearInterval(t);
   }, [cooldown]);
 
-  const handleRefetch = () => {
-    if (cooldown > 0) return;
-    refetch();
+  const handleRefresh = () => {
+    if (cooldown > 0 || isFetching) return;
+    refresh();
   };
 
   return (
