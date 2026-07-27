@@ -45,7 +45,7 @@ function Dashboard() {
   const maxCount = Math.max(1, ...Object.values(stats.byType));
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6 overflow-x-hidden p-4 sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Xin chào, Nông dân 👋</h1>
