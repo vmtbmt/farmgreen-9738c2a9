@@ -69,9 +69,9 @@ export function WeatherCard() {
                   size="icon"
                   variant="ghost"
                   className="h-8 w-8 text-white hover:bg-white/20"
-                  onClick={() => refetch()}
-                  disabled={isFetching}
-                  aria-label="Cập nhật"
+                  onClick={handleRefresh}
+                  disabled={isFetching || cooldown > 0}
+                  aria-label="Cập nhật thời tiết"
                 >
                   {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 </Button>
