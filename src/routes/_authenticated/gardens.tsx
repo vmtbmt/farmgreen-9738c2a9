@@ -111,10 +111,21 @@ function GardensPage() {
                 </div>
                 {g.notes && <p className="pt-2 text-foreground/80">{g.notes}</p>}
                 <div className="flex items-center justify-between pt-3">
-                  <Badge variant="outline">
-                    <NotebookPen className="h-3.5 w-3.5" />
-                    {logCountByGarden[g.id] ?? 0} nhật ký
-                  </Badge>
+                  <Link
+                    to="/gardens/$gardenId/logs"
+                    params={{ gardenId: g.id }}
+                    className="inline-flex items-center rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    aria-label={`Xem lịch sử nhật ký khu ${g.name}`}
+                  >
+                    <Badge
+                      variant="outline"
+                      className="cursor-pointer transition-colors hover:bg-primary/10 hover:text-primary"
+                    >
+                      <NotebookPen className="h-3.5 w-3.5" />
+                      {logCountByGarden[g.id] ?? 0} nhật ký
+                    </Badge>
+                  </Link>
+
                   <Button asChild size="sm" variant="ghost">
                     <Link to="/logs/new" search={{ gardenId: g.id }}>
                       Ghi nhật ký
