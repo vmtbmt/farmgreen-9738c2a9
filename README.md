@@ -27,3 +27,39 @@ npm run dev
 - TypeScript
 - React
 - Tailwind CSS
+
+# FarmGreen
+
+FarmGreen là nền tảng quản lý nông trại sử dụng AI.
+
+## Features
+
+- Authentication
+- Dashboard
+- Garden Management
+- Weather
+- AI Assistant
+- Journal
+- Expense Tracking
+
+## Stack
+
+React
+
+TypeScript
+
+Supabase
+
+TailwindCSS
+
+Vite
+
+## Development
+
+npm install
+
+npm run dev
+
+## Build
+
+npm run build
