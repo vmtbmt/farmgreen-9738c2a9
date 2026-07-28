@@ -1,0 +1,15 @@
+Database Rules
+
+Supabase.
+
+Never drop table.
+
+Never delete column.
+
+Prefer migration.
+
+Don't change schema unless requested.
+
+Always use RLS.
+
+Keep naming consistent.
