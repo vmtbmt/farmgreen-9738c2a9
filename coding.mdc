@@ -1,0 +1,19 @@
+Coding Style
+
+No any.
+
+No console.log.
+
+Use React Hooks.
+
+Split large component >250 lines.
+
+Create custom hooks.
+
+Keep business logic out of UI.
+
+Use React Query.
+
+Prefer async/await.
+
+Never duplicate logic.
