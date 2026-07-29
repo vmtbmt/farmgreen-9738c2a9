@@ -1,0 +1,38 @@
+---
+description: FarmGreen product context, user personas, and feature goals
+alwaysApply: true
+---
+
+# Product Context
+
+## Users
+
+Vietnamese farmers, coffee growers, farm owners, agricultural cooperatives. **Not technical.** Optimize for simplicity and mobile-first use outdoors.
+
+## Core Features
+
+- Garden Management (multi-garden)
+- Farm Journal (activity logs with expense tracking)
+- Weather Monitoring
+- Watering / Fertilizer / Spray schedule reminders
+- AI Agricultural Assistant (chat)
+- Disease Diagnosis (photo upload)
+- AI Monthly Reports
+- Harvest tracking (via activity type)
+
+## Design Principles
+
+- Simple UI, large buttons, readable typography
+- Mobile-first, large spacing, minimal clicks
+- Friendly Vietnamese language
+- Green color palette, card-based layout
+- Avoid dashboard clutter and unnecessary charts
+
+## What NOT to Build
+
+- Landing pages or marketing content
+- E-commerce or marketplace features
+- Complex ERP dashboards
+- Auto-triggered AI features
+
+See `docs/product.md` for full product description and `docs/roadmap.md` for feature status.

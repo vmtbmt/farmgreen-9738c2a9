@@ -1,0 +1,60 @@
+---
+description: React component patterns for FarmGreen — hooks, routing, composition
+globs: "**/*.{tsx,jsx}"
+alwaysApply: false
+---
+
+# React Patterns
+
+## Components
+
+- Functional components only
+- Named exports for feature components, default via TanStack Route export
+- Colocate page logic in route files; extract reusable parts to `src/components/`
+
+## Routing (TanStack Router)
+
+- Pages in `src/routes/` — file-based routing
+- Authenticated pages under `src/routes/_authenticated/`
+- Dynamic segments: `$paramName` (e.g. `$gardenId`)
+- Use `createFileRoute` with `head()` for meta tags
+- Use `Link` from `@tanstack/react-router`, not `<a>` for internal nav
+- Auth guard: `_authenticated/route.tsx` beforeLoad
+
+## Data Fetching
+
+```tsx
+// Read data
+const { gardens, logs, isLoading } = useFarmStore();
+
+// Mutations
+const actions = useFarmActions();
+await actions.addGarden({ ... });
+```
+
+- React Query for server state — do not fetch in useEffect
+- Invalidate query keys after mutations
+- Server functions via `useServerFn(fn)` from `@tanstack/react-start`
+
+## Forms
+
+- Simple forms: controlled `useState`
+- Complex forms: react-hook-form + zod
+- Submit handlers: async with try/catch + toast feedback
+- Validate before submit with user-friendly Vietnamese errors
+
+## Composition
+
+```
+Route file → Feature components → shadcn/ui primitives
+```
+
+Check existing components before creating new ones. Examples:
+- `DashboardAI`, `WeatherCard`, `TodayTasks`, `AppSidebar`
+
+## Do Not
+
+- Add global state libraries (Redux, Zustand)
+- Create `src/pages/` directory (TanStack uses `src/routes/`)
+- Call AI APIs in useEffect without user interaction
+- Use class components

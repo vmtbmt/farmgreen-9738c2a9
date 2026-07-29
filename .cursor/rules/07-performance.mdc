@@ -1,0 +1,65 @@
+---
+description: Performance optimization — lazy loading, memoization, query caching
+globs: "**/*.{tsx,ts}"
+alwaysApply: false
+---
+
+# Performance Guidelines
+
+## React Rendering
+
+- Use `useMemo` for expensive derived data (see dashboard stats calculation)
+- Use `useCallback` sparingly — only when passing to memoized children
+- Avoid creating objects/arrays inline in JSX props when they cause re-renders
+- Keep component trees shallow — extract only when reused
+
+## Data Fetching
+
+React Query configuration patterns from the codebase:
+
+```typescript
+// Standard query
+useQuery({ queryKey: ["gardens"], queryFn: fetchGardens });
+
+// Cached with staleTime (weather)
+useQuery({
+  queryKey: ["weather", lat, lon],
+  staleTime: CACHE_TTL,        // 30 minutes
+  refetchOnWindowFocus: false,
+  initialData: cached?.data,
+});
+```
+
+- Set appropriate `staleTime` to reduce refetches
+- Disable `refetchOnWindowFocus` for stable data (weather)
+- Invalidate queries after mutations, not refetch everything
+
+## Code Splitting
+
+- TanStack Router handles route-level splitting automatically
+- Lazy load heavy components only when needed (e.g. xlsx in reports)
+- Do not import large libraries at module top level if used conditionally
+
+## Caching
+
+- Weather: localStorage with TTL (`use-weather.ts`)
+- Location: localStorage persistence (`farm-weather-location`)
+- AI reports: database persistence (`ai_reports` table)
+
+## Images
+
+- Disease diagnosis currently uses data URLs — consider Supabase Storage for production
+- Use appropriate image sizes before upload
+- Do not store unnecessarily large base64 strings
+
+## Network
+
+- Batch Supabase reads where possible (`Promise.all` in server functions)
+- Limit query results (e.g. logs limited to 500 in AI context)
+- Weather API: coordinate rounding to reduce cache key proliferation
+
+## Do Not
+
+- Prematurely optimize with complex abstractions
+- Add caching libraries — use React Query + localStorage
+- Block UI rendering for non-critical data

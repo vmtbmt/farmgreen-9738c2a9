@@ -1,0 +1,51 @@
+---
+description: FarmGreen UI/UX standards — colors, layout, components, Vietnamese copy
+globs: "**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# UI Guidelines
+
+## Colors & Theme
+
+Green palette defined in `src/styles.css` (oklch). Use utility classes:
+- `gradient-primary text-primary-foreground` — primary buttons
+- `text-muted-foreground` — secondary text
+- `border-destructive/40 bg-destructive/10` — errors
+
+Font: **Plus Jakarta Sans**. Do not change without request.
+
+## Layout
+
+```tsx
+// Standard page
+<div className="mx-auto w-full max-w-7xl space-y-6 overflow-x-hidden p-4 sm:p-6">
+
+// Form page
+<div className="mx-auto max-w-3xl space-y-6 p-6">
+```
+
+## Components
+
+Use shadcn/ui from `src/components/ui/`. Never duplicate Button, Card, Dialog, etc.
+
+- Primary actions: `Button size="lg" className="gradient-primary text-primary-foreground"`
+- Content sections: `Card` + `CardHeader` + `CardContent`
+- Confirmations: `AlertDialog`
+- Forms: `Label` + `Input` / `Select` / `Textarea`
+
+Icons: lucide-react, always paired with text labels.
+
+## Required States
+
+Every feature must handle:
+- **Loading** — `Loader2 animate-spin` + Vietnamese text
+- **Error** — red border/background + retry button
+- **Empty** — dashed border, title, description, CTA
+- **Success** — `toast.success()` via sonner
+
+## Language
+
+All UI text in **Vietnamese**. Use `vi-VN` for dates/numbers. Friendly tone for farmers.
+
+See `docs/ui-guideline.md` for full standards.

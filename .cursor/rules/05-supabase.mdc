@@ -1,0 +1,55 @@
+---
+description: Supabase database rules — RLS, migrations, client patterns
+globs: "{src/integrations/supabase/**,supabase/**,src/lib/farm-store.ts}"
+alwaysApply: false
+---
+
+# Supabase Rules
+
+## Client
+
+- Browser client: `src/integrations/supabase/client.ts` (auto-generated, do not edit)
+- Import: `import { supabase } from "@/integrations/supabase/client"`
+- Uses publishable key only — never service role key on client
+
+## Tables
+
+| Table | Purpose |
+|-------|---------|
+| `gardens` | Farm plots |
+| `activity_logs` | Journal entries |
+| `disease_checks` | AI diagnoses |
+| `ai_reports` | Monthly reports |
+
+All tables have RLS: `auth.uid() = user_id`.
+
+## Data Access Pattern
+
+```typescript
+// Read (React Query)
+const { data, error } = await supabase.from("gardens").select("*").order("created_at", { ascending: false });
+
+// Write (mutation + invalidate)
+const { error } = await supabase.from("gardens").insert({ user_id, ... });
+await qc.invalidateQueries({ queryKey: ["gardens"] });
+```
+
+Primary hooks: `useFarmStore()`, `useFarmActions()` in `src/lib/farm-store.ts`.
+
+## Server-Side Auth
+
+Server functions use `requireSupabaseAuth` middleware which:
+- Validates Bearer JWT from request headers
+- Creates scoped Supabase client with user context
+- Provides `{ supabase, userId }` to handler
+
+## Migration Rules
+
+1. **Never drop tables or columns**
+2. Create new files in `supabase/migrations/`
+3. Enable RLS on new tables with `"own [table]"` policy pattern
+4. Add `updated_at` trigger using `update_updated_at_column()`
+5. Grant to `authenticated` and `service_role`
+6. Update `src/integrations/supabase/types.ts` after schema changes
+
+See `docs/database.md` for full schema reference.
