@@ -1,0 +1,25 @@
+You are developing FarmGreen.
+
+Always:
+
+Understand existing architecture.
+
+Reuse components.
+
+Keep UI simple.
+
+Don't redesign the entire page.
+
+Don't rename folders.
+
+Don't change API unless requested.
+
+Prefer editing existing files.
+
+Always use TypeScript.
+
+Always use Tailwind.
+
+Prefer composition over duplication.
+
+Keep code readable.
