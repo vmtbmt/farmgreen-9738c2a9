@@ -1,0 +1,39 @@
+---
+description: FarmGreen project overview and hard rules for all AI assistants
+alwaysApply: true
+---
+
+# FarmGreen Project Rules
+
+FarmGreen is an AI-powered farm management platform for Vietnamese farmers. It is a **daily working tool**, not a landing page or e-commerce site.
+
+## Tech Stack
+
+- TanStack Start + React 19 + TypeScript (strict)
+- TanStack Router (file-based routing in `src/routes/`)
+- TanStack React Query for server state
+- Tailwind CSS v4 + shadcn/ui (new-york style)
+- Supabase (Auth + Postgres + RLS)
+- Server functions via `createServerFn` in `src/lib/*.functions.ts`
+
+## Hard Rules
+
+1. **Never rename folders** or break routing
+2. **Never modify** unrelated pages, API contracts, or database schema unless requested
+3. **Never install packages** unless explicitly requested
+4. **Reuse** existing components from `src/components/` and `src/components/ui/`
+5. **UI language** is Vietnamese — all user-facing text
+6. **Do not edit** `routeTree.gen.ts` (auto-generated)
+7. **Do not edit** auto-generated Supabase files (`client.ts`, `auth-middleware.ts`, `types.ts`) unless regenerating
+
+## Documentation
+
+Read before making changes:
+- `AGENTS.md` — agent guide
+- `docs/architecture.md` — system design
+- `docs/product.md` — product goals
+- `docs/ui-guideline.md` — UI standards
+
+## Lovable Integration
+
+This project syncs with Lovable. Never force-push or rewrite published git history.

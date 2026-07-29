@@ -8,157 +8,110 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
-# FarmGreen AI Guide
 
-## Product
+# FarmGreen — AI Agent Guide
 
-FarmGreen là nền tảng quản lý nông trại dành cho nông dân Việt Nam.
+This document orients AI coding assistants (Cursor, Claude Code, GitHub Copilot, ChatGPT) working on **FarmGreen** — an AI-powered farm management platform for Vietnamese farmers.
 
-Mục tiêu:
+## What This Project Is
 
-- Quản lý khu vườn
-- Theo dõi thời tiết
-- Nhật ký chăm sóc
-- AI hỗ trợ ra quyết định
-- Quản lý chi phí
-- Theo dõi sản lượng
+FarmGreen is a **daily working tool**, not a landing page or e-commerce site. Users are farmers, coffee growers, farm owners, and agricultural cooperatives — usually **not technical**. Optimize for clarity, simplicity, and mobile-first UX.
 
-AI chỉ hỗ trợ người dùng.
+See also: [`docs/product.md`](docs/product.md), [`docs/architecture.md`](docs/architecture.md).
 
-AI KHÔNG được tự động thực hiện hành động.
+## Tech Stack (Do Not Change Without Request)
 
----
+| Layer | Technology |
+|-------|------------|
+| Framework | TanStack Start + React 19 |
+| Routing | TanStack Router (file-based, `src/routes/`) |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS v4 + shadcn/ui (new-york) |
+| Data fetching | TanStack React Query |
+| Backend / DB | Supabase (Auth + Postgres + RLS) |
+| Server logic | TanStack Start `createServerFn` in `src/lib/*.functions.ts` |
+| AI gateway | Lovable AI Gateway (`LOVABLE_API_KEY`, Gemini) |
+| Weather | Open-Meteo + Nominatim (server-side) |
 
-## Target Users
+## Folder Structure
 
-Người nông dân
+```
+src/
+  routes/           # Pages (TanStack file-based routing)
+  components/       # Feature components
+  components/ui/    # shadcn/ui primitives — reuse, don't duplicate
+  lib/              # Hooks, server functions, utilities
+  integrations/     # Supabase client, Lovable auth
+  hooks/            # Shared React hooks
+supabase/migrations/  # Database migrations
+docs/               # Project documentation for humans and AI
+.cursor/rules/      # Cursor-specific rule files
+```
 
-Người mới làm nông
+**Never rename folders. Never break routing.** `routeTree.gen.ts` is auto-generated — do not edit manually.
 
-Chủ trang trại
+## Hard Rules for AI Assistants
 
----
+### Scope
 
-## Core Principles
+- Reuse existing components; prefer editing over duplicating.
+- Never redesign unrelated pages.
+- Never change API contracts or database schema unless explicitly requested.
+- Do not install packages unless explicitly requested.
+- Do not refactor existing features as part of unrelated tasks.
 
-Đơn giản
+### AI Cost Control
 
-Dễ hiểu
+AI calls are expensive. **Never call AI automatically.**
 
-Mobile First
+- ✅ Only after the user presses an explicit button (e.g. "Hỏi AI tư vấn hôm nay", "Phân tích với AI", "Gửi", "Tạo báo cáo").
+- ❌ Never on page load, refresh, navigation, or inside `useEffect` without user interaction.
+- Cache AI responses when appropriate (see `use-weather.ts` for a caching pattern).
 
-Không nhiều biểu đồ
+Server functions that call AI live in `src/lib/ai.functions.ts` and `src/lib/ai-parse.functions.ts`.
 
-Ít thao tác
+### Supabase
 
-Font lớn
+- Never drop tables or remove columns.
+- Prefer new migrations in `supabase/migrations/`.
+- RLS is enabled on all tables — maintain user-scoped policies.
+- Never expose service role keys; use publishable key + user JWT only.
 
----
+### Language & UX
 
-## AI Feature
+- UI copy is **Vietnamese**.
+- Use friendly, plain language.
+- Follow design principles in [`docs/ui-guideline.md`](docs/ui-guideline.md).
 
-AI chỉ chạy khi người dùng bấm:
+## Key Entry Points
 
-"Phân tích bằng AI"
+| Concern | Location |
+|---------|----------|
+| Data hooks (gardens, logs) | `src/lib/farm-store.ts` |
+| AI server functions | `src/lib/ai.functions.ts` |
+| Weather | `src/lib/weather.functions.ts`, `src/lib/use-weather.ts` |
+| Auth layout | `src/routes/_authenticated/route.tsx` |
+| Sidebar navigation | `src/components/app-sidebar.tsx` |
+| DB types | `src/integrations/supabase/types.ts` |
+| Theme / colors | `src/styles.css` |
 
-Không gọi AI khi:
+## Documentation Index
 
-- mở Dashboard
+| File | Purpose |
+|------|---------|
+| [`docs/architecture.md`](docs/architecture.md) | System design and data flow |
+| [`docs/product.md`](docs/product.md) | Product goals and user personas |
+| [`docs/roadmap.md`](docs/roadmap.md) | Planned features |
+| [`docs/ui-guideline.md`](docs/ui-guideline.md) | Visual and UX standards |
+| [`docs/database.md`](docs/database.md) | Schema, RLS, migrations |
+| [`docs/api.md`](docs/api.md) | Server functions and external APIs |
+| [`docs/prompt-library.md`](docs/prompt-library.md) | Reusable prompts for AI assistants |
 
-- đổi tab
+## Local Development
 
-- load page
+```sh
+npm i
+npm run dev
+```
 
-- refresh
-
----
-
-## Tech Stack
-
-React
-
-TypeScript
-
-Vite
-
-TailwindCSS
-
-shadcn/ui
-
-Supabase
-
-React Query
-
----
-
-## Code Rules
-
-Không dùng any.
-
-Không duplicate component.
-
-Không sửa file không liên quan.
-
-Ưu tiên refactor hơn tạo mới.
-
-Không thêm package nếu chưa cần.
-
-Không thay đổi API nếu chưa được yêu cầu.
-
----
-
-## UI
-
-Màu chủ đạo:
-
-Green
-
-White
-
-Gray
-
-Thiết kế:
-
-Đơn giản
-
-Thân thiện
-
-Nút lớn
-
-Card lớn
-
-Khoảng trắng nhiều
-
-Icon dễ hiểu
-
----
-
-## Dashboard Priority
-
-1 Weather
-
-2 Today's Tasks
-
-3 Garden Health
-
-4 Expense Summary
-
-5 AI Suggestion Button
-
-6 Recent Activities
-
-Không hiển thị quá nhiều biểu đồ.
-
----
-
-## Before Creating New Code
-
-Kiểm tra component đã tồn tại chưa.
-
-Nếu có
-
-→ tái sử dụng.
-
-Nếu chưa
-
-→ tạo component mới.
+Required env vars (via Lovable Cloud or `.env`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `LOVABLE_API_KEY`.

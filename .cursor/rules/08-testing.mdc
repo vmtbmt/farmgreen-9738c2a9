@@ -1,0 +1,82 @@
+---
+description: Testing and quality standards — states, accessibility, responsiveness
+globs: "**/*.{tsx,ts}"
+alwaysApply: false
+---
+
+# Testing & Quality Standards
+
+No test framework is configured yet. Until tests are added, follow these manual quality standards for every feature.
+
+## Required UI States
+
+Every data-driven feature must implement:
+
+### Loading
+```tsx
+{isLoading && (
+  <div className="flex items-center justify-center py-8">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <p className="text-sm text-muted-foreground">Đang tải...</p>
+  </div>
+)}
+```
+
+### Error
+```tsx
+{error && (
+  <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+    <p>{error.message}</p>
+    <Button onClick={retry}>Thử lại</Button>
+  </div>
+)}
+```
+
+### Empty
+```tsx
+{items.length === 0 && (
+  <div className="border border-dashed py-10 text-center">
+    <p>Chưa có dữ liệu</p>
+    <Button>Ghi nhật ký đầu tiên</Button>
+  </div>
+)}
+```
+
+### Success
+- Toast notification: `toast.success("Đã lưu!")`
+- Navigate or update UI to reflect new state
+
+## Responsive Layout
+
+- Test at 375px (mobile), 768px (tablet), 1024px+ (desktop)
+- Use responsive grids: `grid gap-4 sm:grid-cols-2 lg:grid-cols-3`
+- Prevent horizontal scroll: `overflow-x-hidden`, `min-w-0`, `truncate`
+- Sidebar collapses to icons on small screens
+
+## Accessibility
+
+- Use semantic HTML (`main`, `header`, `nav`, `button`)
+- Form fields have associated `Label` components
+- Buttons have visible text (not icon-only without tooltip)
+- Color is not the only indicator (pair with icons/text)
+- Focus states handled by shadcn/ui defaults
+
+## Form Validation
+
+- Validate before submit
+- Show field-level errors in Vietnamese
+- Disable submit button during loading
+- Required fields clearly marked
+
+## When Adding Tests (Future)
+
+Preferred stack (not yet configured):
+- Vitest for unit tests
+- React Testing Library for component tests
+- Test: hooks, mappers, server function input validation
+- Do not test shadcn/ui primitives
+
+Reference implementations with good state handling:
+- `src/components/dashboard-ai.tsx` — all 4 states
+- `src/routes/_authenticated/index.tsx` — empty states
+- `src/routes/_authenticated/gardens.tsx` — CRUD with dialogs

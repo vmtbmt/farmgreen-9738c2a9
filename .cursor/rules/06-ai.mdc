@@ -1,0 +1,61 @@
+---
+description: AI feature rules — cost control, button-triggered only, server-side execution
+globs: "{src/lib/ai*.ts,src/lib/*ai*,src/components/dashboard-ai.tsx,src/routes/_authenticated/assistant.tsx,src/routes/_authenticated/diagnose.tsx,src/routes/_authenticated/reports.tsx}"
+alwaysApply: false
+---
+
+# AI Rules
+
+## Cost Control — CRITICAL
+
+AI is expensive. **Never automatically call AI APIs.**
+
+### Allowed
+
+- User presses explicit button: "Hỏi AI tư vấn hôm nay", "Gửi", "Tạo báo cáo", "Phân tích", "Chẩn đoán"
+- User sends chat message in assistant
+- User uploads image and taps analyze
+
+### Forbidden
+
+- Calling AI on page load
+- Calling AI on refresh or navigation
+- Calling AI inside `useEffect` without user interaction
+- Background polling or scheduled AI calls
+
+## Reference Pattern
+
+Follow `src/components/dashboard-ai.tsx`:
+1. Empty state with CTA button
+2. Button click triggers server function
+3. Show loading spinner during call
+4. Display results or error with retry
+
+## Server Functions
+
+Location: `src/lib/ai.functions.ts`, `src/lib/ai-parse.functions.ts`
+
+- Gateway: `https://ai.gateway.lovable.dev/v1/chat/completions`
+- Model: `google/gemini-3.6-flash`
+- Auth: `LOVABLE_API_KEY` (server env only)
+- Middleware: `requireSupabaseAuth` for user-scoped functions
+- Input: Zod validated
+- Errors: Vietnamese messages for 429 (overloaded) and 402 (credits)
+
+## Caching
+
+Cache AI responses when appropriate:
+- Weather data: 30-min localStorage cache (`use-weather.ts`)
+- Chat messages: in component state (no auto-persist)
+- Reports: persisted in `ai_reports` table after generation
+
+## Adding New AI Features
+
+1. Create server function in `ai.functions.ts`
+2. Add Zod input schema
+3. Add `requireSupabaseAuth` middleware
+4. Create UI with button trigger only
+5. Handle loading / error / success states
+6. Never expose API key to client
+
+See `docs/api.md` and `docs/prompt-library.md` for API reference and prompt templates.
