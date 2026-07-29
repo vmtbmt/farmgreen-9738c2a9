@@ -14,6 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      garden_tasks: {
+        Row: { id: string; user_id: string; garden_id: string; title: string; description: string; category: string; priority: string; status: string; due_date: string | null; reminder_at: string | null; notes: string; completed_at: string | null; archived_at: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; user_id: string; garden_id: string; title: string; description?: string; category?: string; priority?: string; status?: string; due_date?: string | null; reminder_at?: string | null; notes?: string; completed_at?: string | null; archived_at?: string | null; created_at?: string; updated_at?: string }
+        Update: { title?: string; description?: string; category?: string; priority?: string; status?: string; due_date?: string | null; reminder_at?: string | null; notes?: string; completed_at?: string | null; archived_at?: string | null }
+        Relationships: [{ foreignKeyName: "garden_tasks_garden_id_fkey"; columns: ["garden_id"]; isOneToOne: false; referencedRelation: "gardens"; referencedColumns: ["id"] }]
+      }
       activity_logs: {
         Row: {
           cost: number
@@ -146,6 +152,7 @@ export type Database = {
       }
       gardens: {
         Row: {
+          archived_at: string | null
           area: number
           created_at: string
           crop: string
@@ -158,6 +165,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          archived_at?: string | null
           area?: number
           created_at?: string
           crop: string
@@ -170,6 +178,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          archived_at?: string | null
           area?: number
           created_at?: string
           crop?: string

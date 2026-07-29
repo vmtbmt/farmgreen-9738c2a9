@@ -1,0 +1,61 @@
+---
+description: TypeScript conventions — strict typing, Zod validation, no any
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript Standards
+
+## Configuration
+
+Strict mode enabled (`tsconfig.json`). Path alias: `@/*` → `src/*`.
+
+## Typing Rules
+
+- **Never use `any`** unless absolutely unavoidable — prefer `unknown` + type guards
+- Define domain types near their usage (see `farm-store.ts`: `Garden`, `ActivityLog`)
+- Use Supabase generated types from `src/integrations/supabase/types.ts`
+- Map DB snake_case to app camelCase in mapper functions
+
+```typescript
+// Good: explicit types
+type GardenRow = { id: string; name: string; planted_at: string; ... };
+const mapGarden = (r: GardenRow): Garden => ({ ... });
+
+// Good: Zod validation for server function inputs
+const Input = z.object({ mode: z.enum(["farm", "expert"]), ... });
+```
+
+## Server Functions
+
+```typescript
+export const myFunction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])  // if auth needed
+  .inputValidator((d: unknown) => InputSchema.parse(d))
+  .handler(async ({ data, context }) => { ... });
+```
+
+## Imports
+
+- Use `@/` path alias for src imports
+- Type-only imports when appropriate: `import type { ... }`
+- Do not import from `server-only` package (TanStack Start uses different convention)
+
+## Enums & Constants
+
+Activity types are string union types, not TS enums:
+
+```typescript
+export type ActivityType = "Tưới nước" | "Bón phân" | ...;
+export const ACTIVITY_TYPES: ActivityType[] = [...];
+```
+
+## Error Handling
+
+```typescript
+catch (e) {
+  toast.error(e instanceof Error ? e.message : "Có lỗi xảy ra");
+}
+```
+
+Always narrow errors — never assume `Error` type.
