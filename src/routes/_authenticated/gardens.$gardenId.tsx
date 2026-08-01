@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 
 import { GardenFormDialog } from "@/components/garden-form-dialog";
+import { GardenTaskSummary } from "@/components/garden-task-summary";
 import { GardenWorkspaceTabs } from "@/components/garden-workspace-tabs";
 import {
   AlertDialog,
@@ -199,23 +200,63 @@ export function GardenDetailPage() {
         </Card>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <WorkspacePlaceholder
-          icon={<HeartPulse className="h-5 w-5" />}
-          title="Tình trạng cây trồng"
-          description="Thông tin sức khỏe cây trồng sẽ hiển thị tại đây."
-        />
-        <WorkspacePlaceholder
-          icon={<ClipboardList className="h-5 w-5" />}
-          title="Tóm tắt công việc"
-          description="Các việc cần làm cho khu vườn sẽ được cập nhật sớm."
-        />
-        <WorkspacePlaceholder
-          icon={<ReceiptText className="h-5 w-5" />}
-          title="Tóm tắt chi phí"
-          description="Báo cáo chi phí chi tiết sẽ được bổ sung trong phiên bản tới."
-        />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="flex-row items-center gap-2 space-y-0">
+            <HeartPulse className="h-5 w-5 text-primary" />
+            <CardTitle className="text-lg">Tình trạng cây trồng</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {gardenChecks.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Chưa có kết quả chẩn đoán nào cho khu vườn này.
+              </p>
+            ) : (
+              <div className="space-y-1">
+                <div className="font-medium">{gardenChecks[0].diagnosis || "Chưa có kết luận"}</div>
+                <p className="text-sm text-muted-foreground">
+                  Mức độ: {gardenChecks[0].urgency} · {gardenChecks.length} lần chẩn đoán
+                </p>
+              </div>
+            )}
+            <Button asChild className="mt-4" size="sm" variant="outline">
+              <Link to="/diagnose">Chẩn đoán bệnh cây</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex-row items-center gap-2 space-y-0">
+            <ReceiptText className="h-5 w-5 text-primary" />
+            <CardTitle className="text-lg">Tóm tắt chi phí</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Tổng chi phí đã ghi nhận</p>
+            <p className="text-3xl font-bold">
+              {gardenLogs.reduce((sum, log) => sum + log.cost, 0).toLocaleString("vi-VN")}₫
+            </p>
+            <Button asChild className="mt-4" size="sm" variant="outline">
+              <Link to="/gardens/$gardenId/expenses" params={{ gardenId }}>
+                <ReceiptText /> Xem chi phí
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
+
+      <section aria-labelledby="tasks-heading" className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="tasks-heading" className="text-lg font-semibold">
+            Công việc
+          </h2>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/gardens/$gardenId/tasks" params={{ gardenId }}>
+              <ClipboardList /> Quản lý công việc
+            </Link>
+          </Button>
+        </div>
+        <GardenTaskSummary gardenId={gardenId} />
+      </section>
+
 
       <section aria-labelledby="recent-activity-heading">
         <Card>
@@ -316,30 +357,6 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
           <div className="text-xs text-muted-foreground">{label}</div>
           <div className="truncate text-xl font-semibold">{value}</div>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-function WorkspacePlaceholder({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Card className="border-dashed">
-      <CardContent className="flex min-h-36 flex-col justify-center p-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-          {icon}
-        </div>
-        <h2 className="mt-3 font-semibold">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        <Badge variant="outline" className="mt-3 w-fit">
-          Sắp có
-        </Badge>
       </CardContent>
     </Card>
   );
