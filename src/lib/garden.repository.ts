@@ -22,6 +22,15 @@ const map = (row: GardenRow): Garden => ({
   createdAt: row.created_at,
   archivedAt: row.archived_at,
 });
+function raise(action: string, error: { message: string; code?: string; details?: string | null; hint?: string | null }): never {
+  console.error(`[gardens] ${action} failed`, {
+    code: error.code,
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+  });
+  throw new Error(`${error.message}${error.hint ? ` — ${error.hint}` : ""}`);
+}
 export const gardenRepository = {
   async listActive(): Promise<Garden[]> {
     const { data, error } = await supabase
@@ -29,7 +38,7 @@ export const gardenRepository = {
       .select("*")
       .is("archived_at", null)
       .order("created_at", { ascending: false });
-    if (error) throw error;
+    if (error) raise("listActive", error);
     return (data as GardenRow[]).map(map);
   },
   async create(input: GardenInput) {
