@@ -22,6 +22,15 @@ const map = (row: GardenRow): Garden => ({
   createdAt: row.created_at,
   archivedAt: row.archived_at,
 });
+function raise(action: string, error: { message: string; code?: string; details?: string | null; hint?: string | null }): never {
+  console.error(`[gardens] ${action} failed`, {
+    code: error.code,
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+  });
+  throw new Error(`${error.message}${error.hint ? ` — ${error.hint}` : ""}`);
+}
 export const gardenRepository = {
   async listActive(): Promise<Garden[]> {
     const { data, error } = await supabase
@@ -29,7 +38,7 @@ export const gardenRepository = {
       .select("*")
       .is("archived_at", null)
       .order("created_at", { ascending: false });
-    if (error) throw error;
+    if (error) raise("listActive", error);
     return (data as GardenRow[]).map(map);
   },
   async create(input: GardenInput) {
@@ -46,7 +55,7 @@ export const gardenRepository = {
         planted_at: input.plantedAt,
         notes: input.notes || null,
       });
-    if (error) throw error;
+    if (error) raise("create", error);
   },
   async update(id: string, input: GardenInput) {
     const { error } = await supabase
@@ -60,13 +69,13 @@ export const gardenRepository = {
         notes: input.notes || null,
       })
       .eq("id", id);
-    if (error) throw error;
+    if (error) raise("update", error);
   },
   async archive(id: string) {
     const { error } = await supabase
       .from("gardens")
       .update({ archived_at: new Date().toISOString() })
       .eq("id", id);
-    if (error) throw error;
+    if (error) raise("archive", error);
   },
 };
