@@ -144,8 +144,71 @@ export type Database = {
           },
         ]
       }
+      garden_tasks: {
+        Row: {
+          archived_at: string | null
+          category: string
+          completed_at: string | null
+          created_at: string
+          description: string
+          due_date: string | null
+          garden_id: string
+          id: string
+          notes: string
+          priority: string
+          reminder_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          garden_id: string
+          id?: string
+          notes?: string
+          priority?: string
+          reminder_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          garden_id?: string
+          id?: string
+          notes?: string
+          priority?: string
+          reminder_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garden_tasks_garden_id_fkey"
+            columns: ["garden_id"]
+            isOneToOne: false
+            referencedRelation: "gardens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gardens: {
         Row: {
+          archived_at: string | null
           area: number
           created_at: string
           crop: string
@@ -158,6 +221,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          archived_at?: string | null
           area?: number
           created_at?: string
           crop: string
@@ -170,6 +234,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          archived_at?: string | null
           area?: number
           created_at?: string
           crop?: string
