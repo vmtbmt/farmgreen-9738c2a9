@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 
 import { GardenFormDialog } from "@/components/garden-form-dialog";
+import { GardenTaskSummary } from "@/components/garden-task-summary";
 import { GardenWorkspaceTabs } from "@/components/garden-workspace-tabs";
 import {
   AlertDialog,
@@ -356,30 +357,6 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
           <div className="text-xs text-muted-foreground">{label}</div>
           <div className="truncate text-xl font-semibold">{value}</div>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-function WorkspacePlaceholder({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Card className="border-dashed">
-      <CardContent className="flex min-h-36 flex-col justify-center p-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-          {icon}
-        </div>
-        <h2 className="mt-3 font-semibold">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        <Badge variant="outline" className="mt-3 w-fit">
-          Sắp có
-        </Badge>
       </CardContent>
     </Card>
   );
