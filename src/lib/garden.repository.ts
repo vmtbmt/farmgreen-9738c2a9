@@ -55,7 +55,7 @@ export const gardenRepository = {
         planted_at: input.plantedAt,
         notes: input.notes || null,
       });
-    if (error) throw error;
+    if (error) raise("create", error);
   },
   async update(id: string, input: GardenInput) {
     const { error } = await supabase
@@ -69,13 +69,13 @@ export const gardenRepository = {
         notes: input.notes || null,
       })
       .eq("id", id);
-    if (error) throw error;
+    if (error) raise("update", error);
   },
   async archive(id: string) {
     const { error } = await supabase
       .from("gardens")
       .update({ archived_at: new Date().toISOString() })
       .eq("id", id);
-    if (error) throw error;
+    if (error) raise("archive", error);
   },
 };
