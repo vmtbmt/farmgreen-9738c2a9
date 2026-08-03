@@ -4,9 +4,11 @@ import {
   Archive,
   ArrowLeft,
   CalendarDays,
+  CheckCircle2,
   ClipboardList,
   Edit3,
   HeartPulse,
+  ListTodo,
   MapPin,
   NotebookPen,
   ReceiptText,
@@ -33,7 +35,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDiseaseChecks, useFarmActions, useFarmStore } from "@/lib/farm-store";
+import { useDiseaseChecks, useFarmActions, useFarmStore, useGardenTasks } from "@/lib/farm-store";
+import { summarizeTasks } from "@/lib/garden-task-utils";
 
 export const Route = createFileRoute("/_authenticated/gardens/$gardenId")({
   head: () => ({ meta: [{ title: "Chi tiết khu vườn — Nông Trại Xanh" }] }),
@@ -46,6 +49,7 @@ export function GardenDetailPage() {
   const { gardens, logs, isLoading } = useFarmStore();
   const diseaseChecks = useDiseaseChecks();
   const actions = useFarmActions();
+  const tasksQuery = useGardenTasks(gardenId);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -58,7 +62,8 @@ export function GardenDetailPage() {
     () => (diseaseChecks.data ?? []).filter((item) => item.gardenId === gardenId),
     [diseaseChecks.data, gardenId],
   );
-  const recentLogs = gardenLogs.slice(0, 3);
+  const taskStats = summarizeTasks(tasksQuery.data ?? []);
+  const recentLogs = gardenLogs.slice(0, 5);
   const canDelete = gardenLogs.length === 0 && gardenChecks.length === 0;
 
   const archive = async () => {
@@ -87,7 +92,7 @@ export function GardenDetailPage() {
     }
   };
 
-  if (isLoading)
+  if (isLoading || tasksQuery.isLoading)
     return (
       <div className="mx-auto w-full max-w-5xl space-y-4 p-4 sm:p-6">
         <Skeleton className="h-10 w-40" />
@@ -156,24 +161,24 @@ export function GardenDetailPage() {
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            icon={<Ruler className="h-5 w-5" />}
-            label="Diện tích"
-            value={`${garden.area.toLocaleString("vi-VN")} m²`}
-          />
-          <StatCard
-            icon={<HeartPulse className="h-5 w-5" />}
-            label="Trạng thái"
-            value={garden.archivedAt ? "Đã lưu trữ" : "Đang canh tác"}
-          />
-          <StatCard
-            icon={<CalendarDays className="h-5 w-5" />}
-            label="Năm trồng"
-            value={String(new Date(garden.plantedAt).getFullYear())}
-          />
-          <StatCard
             icon={<NotebookPen className="h-5 w-5" />}
-            label="Nhật ký"
+            label="Tổng hoạt động"
             value={gardenLogs.length.toLocaleString("vi-VN")}
+          />
+          <StatCard
+            icon={<ClipboardList className="h-5 w-5" />}
+            label="Tổng công việc"
+            value={taskStats.total.toLocaleString("vi-VN")}
+          />
+          <StatCard
+            icon={<CheckCircle2 className="h-5 w-5" />}
+            label="Hoàn thành"
+            value={taskStats.completed.toLocaleString("vi-VN")}
+          />
+          <StatCard
+            icon={<ListTodo className="h-5 w-5" />}
+            label="Đang chờ"
+            value={taskStats.pending.toLocaleString("vi-VN")}
           />
         </div>
       </section>
