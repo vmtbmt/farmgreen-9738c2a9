@@ -161,24 +161,24 @@ export function GardenDetailPage() {
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            icon={<Ruler className="h-5 w-5" />}
-            label="Diện tích"
-            value={`${garden.area.toLocaleString("vi-VN")} m²`}
-          />
-          <StatCard
-            icon={<HeartPulse className="h-5 w-5" />}
-            label="Trạng thái"
-            value={garden.archivedAt ? "Đã lưu trữ" : "Đang canh tác"}
-          />
-          <StatCard
-            icon={<CalendarDays className="h-5 w-5" />}
-            label="Năm trồng"
-            value={String(new Date(garden.plantedAt).getFullYear())}
-          />
-          <StatCard
             icon={<NotebookPen className="h-5 w-5" />}
-            label="Nhật ký"
+            label="Tổng hoạt động"
             value={gardenLogs.length.toLocaleString("vi-VN")}
+          />
+          <StatCard
+            icon={<ClipboardList className="h-5 w-5" />}
+            label="Tổng công việc"
+            value={taskStats.total.toLocaleString("vi-VN")}
+          />
+          <StatCard
+            icon={<CheckCircle2 className="h-5 w-5" />}
+            label="Hoàn thành"
+            value={taskStats.completed.toLocaleString("vi-VN")}
+          />
+          <StatCard
+            icon={<ListTodo className="h-5 w-5" />}
+            label="Đang chờ"
+            value={taskStats.pending.toLocaleString("vi-VN")}
           />
         </div>
       </section>
