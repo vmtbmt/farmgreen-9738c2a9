@@ -47,6 +47,7 @@ export function GardenDetailPage() {
   const { gardens, logs, isLoading } = useFarmStore();
   const diseaseChecks = useDiseaseChecks();
   const actions = useFarmActions();
+  const tasksQuery = useGardenTasks(gardenId);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -59,7 +60,8 @@ export function GardenDetailPage() {
     () => (diseaseChecks.data ?? []).filter((item) => item.gardenId === gardenId),
     [diseaseChecks.data, gardenId],
   );
-  const recentLogs = gardenLogs.slice(0, 3);
+  const taskStats = summarizeTasks(tasksQuery.data ?? []);
+  const recentLogs = gardenLogs.slice(0, 5);
   const canDelete = gardenLogs.length === 0 && gardenChecks.length === 0;
 
   const archive = async () => {
