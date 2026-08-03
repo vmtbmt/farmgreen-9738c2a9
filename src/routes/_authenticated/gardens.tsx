@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { CalendarDays, ChevronRight, MapPin, Plus, Ruler, Sprout } from "lucide-react";
 
+import { GardenDeleteButton } from "@/components/garden-delete-button";
 import { GardenFormDialog } from "@/components/garden-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
