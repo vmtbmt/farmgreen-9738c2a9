@@ -161,9 +161,9 @@ export function GardenDetailPage() {
             value={`${garden.area.toLocaleString("vi-VN")} m²`}
           />
           <StatCard
-            icon={<NotebookPen className="h-5 w-5" />}
-            label="Số cây"
-            value="Chưa cập nhật"
+            icon={<HeartPulse className="h-5 w-5" />}
+            label="Trạng thái"
+            value={garden.archivedAt ? "Đã lưu trữ" : "Đang canh tác"}
           />
           <StatCard
             icon={<CalendarDays className="h-5 w-5" />}
