@@ -92,7 +92,7 @@ export function GardenDetailPage() {
     }
   };
 
-  if (isLoading)
+  if (isLoading || tasksQuery.isLoading)
     return (
       <div className="mx-auto w-full max-w-5xl space-y-4 p-4 sm:p-6">
         <Skeleton className="h-10 w-40" />
