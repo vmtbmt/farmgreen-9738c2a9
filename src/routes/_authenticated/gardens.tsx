@@ -112,8 +112,10 @@ function GardensPage() {
                   </div>
                 </CardContent>
               </Card>
-            </Link>
+              </Link>
+            </div>
           ))}
+
         </div>
       )}
       <GardenFormDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
