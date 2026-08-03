@@ -33,7 +33,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDiseaseChecks, useFarmActions, useFarmStore } from "@/lib/farm-store";
+import { useDiseaseChecks, useFarmActions, useFarmStore, useGardenTasks } from "@/lib/farm-store";
+import { summarizeTasks } from "@/lib/garden-task-utils";
 
 export const Route = createFileRoute("/_authenticated/gardens/$gardenId")({
   head: () => ({ meta: [{ title: "Chi tiết khu vườn — Nông Trại Xanh" }] }),
