@@ -71,12 +71,15 @@ function GardensPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {gardens.map((garden) => (
-            <Link
-              key={garden.id}
-              to="/gardens/$gardenId"
-              params={{ gardenId: garden.id }}
-              className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
-            >
+            <div key={garden.id} className="relative">
+              <div className="absolute right-3 top-3 z-10">
+                <GardenDeleteButton gardenId={garden.id} gardenName={garden.name} />
+              </div>
+              <Link
+                to="/gardens/$gardenId"
+                params={{ gardenId: garden.id }}
+                className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
+              >
               <Card className="h-full overflow-hidden transition-shadow group-hover:shadow-lg">
                 <div className="h-2 gradient-primary" />
                 <CardHeader>
@@ -87,9 +90,10 @@ function GardensPage() {
                         {garden.crop}
                       </Badge>
                     </div>
-                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 translate-x-8 text-muted-foreground transition-transform group-hover:translate-x-9" />
                   </div>
                 </CardHeader>
+
                 <CardContent className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 shrink-0" />
