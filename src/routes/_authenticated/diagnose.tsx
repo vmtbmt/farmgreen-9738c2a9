@@ -169,5 +169,7 @@ function DiagnosePage() {
         )}
       </div>
     </div>
+    </div>
   );
+
 }
