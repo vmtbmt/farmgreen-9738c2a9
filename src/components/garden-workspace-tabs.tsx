@@ -6,10 +6,12 @@ const tabs = [
   { key: "overview", label: "Tổng quan", to: "/gardens/$gardenId" },
   { key: "tasks", label: "Công việc", to: "/gardens/$gardenId/tasks" },
   { key: "journal", label: "Nhật ký", to: "/gardens/$gardenId/journal" },
+  { key: "logs", label: "Lịch sử hoạt động", to: "/gardens/$gardenId/logs" },
   { key: "expenses", label: "Chi phí", to: "/gardens/$gardenId/expenses" },
   { key: "photos", label: "Ảnh", to: "/gardens/$gardenId/photos" },
   { key: "settings", label: "Cài đặt", to: "/gardens/$gardenId/settings" },
 ] as const;
+
 
 export function GardenWorkspaceTabs({
   gardenId,
