@@ -77,7 +77,7 @@ function GardensPage() {
                 <GardenDeleteButton gardenId={garden.id} gardenName={garden.name} />
               </div>
               <Link
-                to="/gardens/$gardenId"
+                to="/garden/$gardenId"
                 params={{ gardenId: garden.id }}
                 className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
               >
