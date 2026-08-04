@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Calendar, NotebookPen, Filter, Wallet } from "lucide-react";
 
+import { GardenWorkspaceTabs } from "@/components/garden-workspace-tabs";
 import { Button } from "@/components/ui/button";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
