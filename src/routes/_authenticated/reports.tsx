@@ -7,7 +7,9 @@ import {
   FileText, Loader2, Sparkles, TrendingUp, AlertTriangle, Target,
   Droplets, Leaf as LeafIcon, Bug, Download, History, Trash2, Eye,
 } from "lucide-react";
+import { AiWorkspaceTabs } from "@/components/ai-workspace-tabs";
 import { Button } from "@/components/ui/button";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -98,7 +100,10 @@ function ReportsPage() {
   };
 
   return (
+    <div>
+      <AiWorkspaceTabs activeTab="reports" />
     <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
@@ -224,7 +229,9 @@ function ReportsPage() {
         </CardContent>
       </Card>
     </div>
+    </div>
   );
+
 }
 
 function Stat({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {

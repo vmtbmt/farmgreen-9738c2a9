@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Sprout, NotebookPen, History, Leaf, LogOut, Sparkles, Stethoscope, FileText, CloudSun } from "lucide-react";
+import { LayoutDashboard, Sprout, Leaf, LogOut, Sparkles, CloudSun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -9,19 +9,19 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 
 const items = [
-  { title: "Tổng quan", url: "/", icon: LayoutDashboard },
-  { title: "Khu vườn", url: "/gardens", icon: Sprout },
-  { title: "Ghi nhật ký", url: "/logs/new", icon: NotebookPen },
-  { title: "Lịch sử hoạt động", url: "/logs", icon: History },
-  { title: "Thời tiết", url: "/weather", icon: CloudSun },
-  { title: "Trợ lý AI", url: "/assistant", icon: Sparkles },
-  { title: "Chẩn đoán bệnh", url: "/diagnose", icon: Stethoscope },
-  { title: "Báo cáo AI", url: "/reports", icon: FileText },
+  { title: "Tổng quan", url: "/", icon: LayoutDashboard, match: ["/"] },
+  { title: "Khu vườn", url: "/gardens", icon: Sprout, match: ["/gardens", "/garden", "/logs"] },
+  { title: "Thời tiết", url: "/weather", icon: CloudSun, match: ["/weather"] },
+  { title: "AI", url: "/assistant", icon: Sparkles, match: ["/assistant", "/diagnose", "/reports"] },
 ];
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const isActive = (u: string) => (u === "/" ? pathname === "/" : pathname.startsWith(u));
+  const isActive = (item: (typeof items)[number]) =>
+    item.url === "/"
+      ? pathname === "/"
+      : item.match.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
 
@@ -57,7 +57,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item)} tooltip={item.title}>
                     <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>

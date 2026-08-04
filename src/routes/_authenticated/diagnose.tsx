@@ -3,7 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Stethoscope, Upload, Loader2, AlertTriangle, Trash2 } from "lucide-react";
+import { AiWorkspaceTabs } from "@/components/ai-workspace-tabs";
 import { Button } from "@/components/ui/button";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -75,7 +77,10 @@ function DiagnosePage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+    <div>
+      <AiWorkspaceTabs activeTab="diagnose" />
+      <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
           <Stethoscope className="h-5 w-5 text-primary-foreground" />
@@ -166,5 +171,7 @@ function DiagnosePage() {
         )}
       </div>
     </div>
+    </div>
   );
+
 }
