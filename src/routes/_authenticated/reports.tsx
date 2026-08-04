@@ -224,7 +224,9 @@ function ReportsPage() {
         </CardContent>
       </Card>
     </div>
+    </div>
   );
+
 }
 
 function Stat({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
