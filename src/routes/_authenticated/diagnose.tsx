@@ -3,7 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Stethoscope, Upload, Loader2, AlertTriangle, Trash2 } from "lucide-react";
+import { AiWorkspaceTabs } from "@/components/ai-workspace-tabs";
 import { Button } from "@/components/ui/button";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
