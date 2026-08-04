@@ -3,7 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Loader2, Send, Leaf, Bot, User } from "lucide-react";
+import { AiWorkspaceTabs } from "@/components/ai-workspace-tabs";
 import { Button } from "@/components/ui/button";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { chatWithAssistant } from "@/lib/ai.functions";
