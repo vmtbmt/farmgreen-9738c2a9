@@ -63,7 +63,13 @@ export function GardenDetailPage() {
     [diseaseChecks.data, gardenId],
   );
   const taskStats = summarizeTasks(tasksQuery.data ?? []);
-  const recentLogs = gardenLogs.slice(0, 5);
+  const recentLogs = useMemo(
+    () =>
+      [...gardenLogs]
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5),
+    [gardenLogs],
+  );
   const canDelete = gardenLogs.length === 0 && gardenChecks.length === 0;
 
   const archive = async () => {
