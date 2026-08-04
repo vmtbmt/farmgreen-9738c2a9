@@ -75,7 +75,10 @@ function DiagnosePage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+    <div>
+      <AiWorkspaceTabs activeTab="diagnose" />
+      <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
           <Stethoscope className="h-5 w-5 text-primary-foreground" />
