@@ -71,7 +71,9 @@ function AssistantPage() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
+      <AiWorkspaceTabs activeTab="assistant" />
       <div className="border-b border-border bg-background/80 backdrop-blur">
+
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
