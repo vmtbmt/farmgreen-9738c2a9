@@ -18,6 +18,7 @@ import { Route as AuthenticatedGardensRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDiagnoseRouteImport } from './routes/_authenticated/diagnose'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedLogsIndexRouteImport } from './routes/_authenticated/logs.index'
+import { Route as AuthenticatedGardensIndexRouteImport } from './routes/_authenticated/gardens.index'
 import { Route as AuthenticatedLogsNewRouteImport } from './routes/_authenticated/logs.new'
 import { Route as AuthenticatedGardensGardenIdRouteImport } from './routes/_authenticated/gardens.$gardenId'
 import { Route as AuthenticatedGardenGardenIdRouteImport } from './routes/_authenticated/garden.$gardenId'
@@ -73,6 +74,12 @@ const AuthenticatedLogsIndexRoute = AuthenticatedLogsIndexRouteImport.update({
   path: '/logs/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGardensIndexRoute =
+  AuthenticatedGardensIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedGardensRoute,
+  } as any)
 const AuthenticatedLogsNewRoute = AuthenticatedLogsNewRouteImport.update({
   id: '/logs/new',
   path: '/logs/new',
@@ -144,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/garden/$gardenId': typeof AuthenticatedGardenGardenIdRoute
   '/gardens/$gardenId': typeof AuthenticatedGardensGardenIdRouteWithChildren
   '/logs/new': typeof AuthenticatedLogsNewRoute
+  '/gardens/': typeof AuthenticatedGardensIndexRoute
   '/logs/': typeof AuthenticatedLogsIndexRoute
   '/gardens/$gardenId/expenses': typeof AuthenticatedGardensGardenIdExpensesRoute
   '/gardens/$gardenId/journal': typeof AuthenticatedGardensGardenIdJournalRoute
@@ -157,12 +165,12 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/assistant': typeof AuthenticatedAssistantRoute
   '/diagnose': typeof AuthenticatedDiagnoseRoute
-  '/gardens': typeof AuthenticatedGardensRouteWithChildren
   '/reports': typeof AuthenticatedReportsRoute
   '/weather': typeof AuthenticatedWeatherRoute
   '/': typeof AuthenticatedIndexRoute
   '/garden/$gardenId': typeof AuthenticatedGardenGardenIdRoute
   '/logs/new': typeof AuthenticatedLogsNewRoute
+  '/gardens': typeof AuthenticatedGardensIndexRoute
   '/logs': typeof AuthenticatedLogsIndexRoute
   '/gardens/$gardenId/expenses': typeof AuthenticatedGardensGardenIdExpensesRoute
   '/gardens/$gardenId/journal': typeof AuthenticatedGardensGardenIdJournalRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/_authenticated/garden/$gardenId': typeof AuthenticatedGardenGardenIdRoute
   '/_authenticated/gardens/$gardenId': typeof AuthenticatedGardensGardenIdRouteWithChildren
   '/_authenticated/logs/new': typeof AuthenticatedLogsNewRoute
+  '/_authenticated/gardens/': typeof AuthenticatedGardensIndexRoute
   '/_authenticated/logs/': typeof AuthenticatedLogsIndexRoute
   '/_authenticated/gardens/$gardenId/expenses': typeof AuthenticatedGardensGardenIdExpensesRoute
   '/_authenticated/gardens/$gardenId/journal': typeof AuthenticatedGardensGardenIdJournalRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/garden/$gardenId'
     | '/gardens/$gardenId'
     | '/logs/new'
+    | '/gardens/'
     | '/logs/'
     | '/gardens/$gardenId/expenses'
     | '/gardens/$gardenId/journal'
@@ -220,12 +230,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/assistant'
     | '/diagnose'
-    | '/gardens'
     | '/reports'
     | '/weather'
     | '/'
     | '/garden/$gardenId'
     | '/logs/new'
+    | '/gardens'
     | '/logs'
     | '/gardens/$gardenId/expenses'
     | '/gardens/$gardenId/journal'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/_authenticated/garden/$gardenId'
     | '/_authenticated/gardens/$gardenId'
     | '/_authenticated/logs/new'
+    | '/_authenticated/gardens/'
     | '/_authenticated/logs/'
     | '/_authenticated/gardens/$gardenId/expenses'
     | '/_authenticated/gardens/$gardenId/journal'
@@ -326,6 +337,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/logs/'
       preLoaderRoute: typeof AuthenticatedLogsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/gardens/': {
+      id: '/_authenticated/gardens/'
+      path: '/'
+      fullPath: '/gardens/'
+      preLoaderRoute: typeof AuthenticatedGardensIndexRouteImport
+      parentRoute: typeof AuthenticatedGardensRoute
     }
     '/_authenticated/logs/new': {
       id: '/_authenticated/logs/new'
@@ -435,11 +453,13 @@ const AuthenticatedGardensGardenIdRouteWithChildren =
 
 interface AuthenticatedGardensRouteChildren {
   AuthenticatedGardensGardenIdRoute: typeof AuthenticatedGardensGardenIdRouteWithChildren
+  AuthenticatedGardensIndexRoute: typeof AuthenticatedGardensIndexRoute
 }
 
 const AuthenticatedGardensRouteChildren: AuthenticatedGardensRouteChildren = {
   AuthenticatedGardensGardenIdRoute:
     AuthenticatedGardensGardenIdRouteWithChildren,
+  AuthenticatedGardensIndexRoute: AuthenticatedGardensIndexRoute,
 }
 
 const AuthenticatedGardensRouteWithChildren =
