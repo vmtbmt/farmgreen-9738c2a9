@@ -204,26 +204,20 @@ export function useFarmActions() {
       await qc.invalidateQueries({ queryKey: ["gardens"] });
     },
     async deleteGarden(id: string) {
-      const [{ count: logCount, error: logsError }, { count: checkCount, error: checksError }] =
-        await Promise.all([
-          supabase
-            .from("activity_logs")
-            .select("id", { count: "exact", head: true })
-            .eq("garden_id", id),
-          supabase
-            .from("disease_checks")
-            .select("id", { count: "exact", head: true })
-            .eq("garden_id", id),
-        ]);
-      if (logsError ?? checksError) throw logsError ?? checksError;
-      if ((logCount ?? 0) > 0 || (checkCount ?? 0) > 0) {
-        throw new Error("Chỉ có thể xóa vườn chưa có nhật ký hoặc chẩn đoán liên quan.");
-      }
+      const results = await Promise.all([
+        supabase.from("activity_logs").delete().eq("garden_id", id),
+        supabase.from("garden_tasks").delete().eq("garden_id", id),
+        supabase.from("disease_checks").delete().eq("garden_id", id),
+      ]);
+      const failed = results.find((r) => r.error);
+      if (failed?.error) throw failed.error;
       const { error } = await supabase.from("gardens").delete().eq("id", id);
       if (error) throw error;
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["gardens"] }),
         qc.invalidateQueries({ queryKey: ["logs"] }),
+        qc.invalidateQueries({ queryKey: ["garden_tasks"] }),
+        qc.invalidateQueries({ queryKey: ["disease_checks"] }),
       ]);
     },
     async addGardenTask(input: GardenTaskInput) {
