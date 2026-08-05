@@ -149,6 +149,31 @@ export function useGardenTasks(gardenId: string) {
   });
 }
 
+async function fetchAllGardenTasks(): Promise<GardenTask[]> {
+  const { data, error } = await supabase.from("garden_tasks").select("*");
+  if (error) throw error;
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    gardenId: row.garden_id,
+    title: row.title,
+    description: row.description ?? "",
+    category: row.category,
+    priority: row.priority,
+    status: row.status,
+    dueDate: row.due_date,
+    reminderAt: row.reminder_at,
+    notes: row.notes ?? "",
+    completedAt: row.completed_at,
+    archivedAt: row.archived_at,
+    createdAt: row.created_at,
+  }));
+}
+
+export function useAllGardenTasks() {
+  return useQuery({ queryKey: ["garden_tasks", "all"], queryFn: fetchAllGardenTasks });
+}
+
+
 export function useFarmStore() {
   const gardensQ = useQuery({ queryKey: ["gardens"], queryFn: fetchGardens });
   const logsQ = useQuery({ queryKey: ["logs"], queryFn: fetchLogs });
