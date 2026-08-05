@@ -1,14 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { CalendarDays, ChevronRight, MapPin, Plus, Ruler, Sprout } from "lucide-react";
+import { Plus, Sprout } from "lucide-react";
 
-import { GardenDeleteButton } from "@/components/garden-delete-button";
+import { GardenCard } from "@/components/garden-card";
 import { GardenFormDialog } from "@/components/garden-form-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useFarmStore } from "@/lib/farm-store";
+import { useAllGardenTasks, useFarmStore } from "@/lib/farm-store";
 
 export const Route = createFileRoute("/_authenticated/gardens")({
   head: () => ({
@@ -22,11 +21,9 @@ export const Route = createFileRoute("/_authenticated/gardens")({
 
 function GardensPage() {
   const { gardens, logs, isLoading } = useFarmStore();
+  const { data: tasks = [] } = useAllGardenTasks();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const logCountByGarden = logs.reduce<Record<string, number>>((counts, log) => {
-    counts[log.gardenId] = (counts[log.gardenId] ?? 0) + 1;
-    return counts;
-  }, {});
+
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
