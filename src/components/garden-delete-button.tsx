@@ -32,9 +32,7 @@ export function GardenDeleteButton({
       await actions.deleteGarden(gardenId);
       toast.success(`Đã xóa khu vườn “${gardenName}”.`);
     } catch (error) {
-      toast.error(
-        `Không thể xóa khu vườn: ${(error as Error).message}. Nếu khu vườn đã có nhật ký, hãy lưu trữ thay vì xóa.`,
-      );
+      toast.error(`Không thể xóa khu vườn: ${(error as Error).message}`);
     } finally {
       setIsDeleting(false);
     }
