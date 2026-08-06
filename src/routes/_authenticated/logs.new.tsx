@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { NotebookPen, ArrowLeft, Sprout } from "lucide-react";
@@ -39,7 +39,7 @@ function NewLogPage() {
   const { gardens } = useFarmStore();
   const actions = useFarmActions();
   const search = Route.useSearch();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [form, setForm] = useState({
     gardenId: search.gardenId ?? "",
@@ -64,7 +64,7 @@ function NewLogPage() {
         cost: Number(form.cost) || 0,
       });
       toast.success("Đã lưu nhật ký hoạt động!");
-      navigate({ to: "/logs" });
+      router.navigate({ to: "/logs" });
     } catch (err) {
       toast.error("Không thể lưu: " + (err as Error).message);
     }
@@ -73,10 +73,14 @@ function NewLogPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
       <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link to="/logs">
-            <ArrowLeft /> Về lịch sử
-          </Link>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="-ml-2"
+          onClick={() => router.history.back()}
+        >
+          <ArrowLeft /> Quay lại
         </Button>
         <h1 className="mt-2 text-3xl font-bold tracking-tight">Ghi nhật ký hoạt động</h1>
         <p className="mt-1 text-muted-foreground">
