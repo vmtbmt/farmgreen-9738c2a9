@@ -39,7 +39,7 @@ function NewLogPage() {
   const { gardens } = useFarmStore();
   const actions = useFarmActions();
   const search = Route.useSearch();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [form, setForm] = useState({
     gardenId: search.gardenId ?? "",
