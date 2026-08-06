@@ -7,7 +7,7 @@ import { useWeather } from "@/lib/use-weather";
 
 const COOLDOWN_SECONDS = 60;
 
-export function WeatherCard() {
+export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
   const { data, isLoading, isFetching, isError, error, refresh, location, requestGPS } = useWeather();
   const isRateLimited = error instanceof Error && /429/.test(error.message);
   const [cooldown, setCooldown] = useState(0);
