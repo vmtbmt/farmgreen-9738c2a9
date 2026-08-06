@@ -9,34 +9,34 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
-import { Route as AuthenticatedDiagnoseRouteImport } from './routes/_authenticated/diagnose'
-import { Route as AuthenticatedGardensRouteImport } from './routes/_authenticated/gardens'
-import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedWeatherRouteImport } from './routes/_authenticated/weather'
-import { Route as AuthenticatedGardenGardenIdRouteImport } from './routes/_authenticated/garden.$gardenId'
-import { Route as AuthenticatedGardensIndexRouteImport } from './routes/_authenticated/gardens.index'
-import { Route as AuthenticatedGardensGardenIdRouteImport } from './routes/_authenticated/gardens.$gardenId'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedGardensRouteImport } from './routes/_authenticated/gardens'
+import { Route as AuthenticatedDiagnoseRouteImport } from './routes/_authenticated/diagnose'
+import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedLogsIndexRouteImport } from './routes/_authenticated/logs.index'
+import { Route as AuthenticatedGardensIndexRouteImport } from './routes/_authenticated/gardens.index'
 import { Route as AuthenticatedLogsNewRouteImport } from './routes/_authenticated/logs.new'
+import { Route as AuthenticatedGardensGardenIdRouteImport } from './routes/_authenticated/gardens.$gardenId'
+import { Route as AuthenticatedGardenGardenIdRouteImport } from './routes/_authenticated/garden.$gardenId'
 import { Route as AuthenticatedGardensGardenIdIndexRouteImport } from './routes/_authenticated/gardens.$gardenId.index'
-import { Route as AuthenticatedGardensGardenIdExpensesRouteImport } from './routes/_authenticated/gardens.$gardenId.expenses'
-import { Route as AuthenticatedGardensGardenIdJournalRouteImport } from './routes/_authenticated/gardens.$gardenId.journal'
-import { Route as AuthenticatedGardensGardenIdLogsRouteImport } from './routes/_authenticated/gardens.$gardenId.logs'
-import { Route as AuthenticatedGardensGardenIdPhotosRouteImport } from './routes/_authenticated/gardens.$gardenId.photos'
-import { Route as AuthenticatedGardensGardenIdSettingsRouteImport } from './routes/_authenticated/gardens.$gardenId.settings'
 import { Route as AuthenticatedGardensGardenIdTasksRouteImport } from './routes/_authenticated/gardens.$gardenId.tasks'
+import { Route as AuthenticatedGardensGardenIdSettingsRouteImport } from './routes/_authenticated/gardens.$gardenId.settings'
+import { Route as AuthenticatedGardensGardenIdPhotosRouteImport } from './routes/_authenticated/gardens.$gardenId.photos'
+import { Route as AuthenticatedGardensGardenIdLogsRouteImport } from './routes/_authenticated/gardens.$gardenId.logs'
+import { Route as AuthenticatedGardensGardenIdJournalRouteImport } from './routes/_authenticated/gardens.$gardenId.journal'
+import { Route as AuthenticatedGardensGardenIdExpensesRouteImport } from './routes/_authenticated/gardens.$gardenId.expenses'
 
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
@@ -44,19 +44,9 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
-  id: '/assistant',
-  path: '/assistant',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDiagnoseRoute = AuthenticatedDiagnoseRouteImport.update({
-  id: '/diagnose',
-  path: '/diagnose',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedGardensRoute = AuthenticatedGardensRouteImport.update({
-  id: '/gardens',
-  path: '/gardens',
+const AuthenticatedWeatherRoute = AuthenticatedWeatherRouteImport.update({
+  id: '/weather',
+  path: '/weather',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
@@ -64,67 +54,59 @@ const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedWeatherRoute = AuthenticatedWeatherRouteImport.update({
-  id: '/weather',
-  path: '/weather',
+const AuthenticatedGardensRoute = AuthenticatedGardensRouteImport.update({
+  id: '/gardens',
+  path: '/gardens',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedGardenGardenIdRoute =
-  AuthenticatedGardenGardenIdRouteImport.update({
-    id: '/garden/$gardenId',
-    path: '/garden/$gardenId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
+const AuthenticatedDiagnoseRoute = AuthenticatedDiagnoseRouteImport.update({
+  id: '/diagnose',
+  path: '/diagnose',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLogsIndexRoute = AuthenticatedLogsIndexRouteImport.update({
+  id: '/logs/',
+  path: '/logs/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedGardensIndexRoute =
   AuthenticatedGardensIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedGardensRoute,
   } as any)
+const AuthenticatedLogsNewRoute = AuthenticatedLogsNewRouteImport.update({
+  id: '/logs/new',
+  path: '/logs/new',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedGardensGardenIdRoute =
   AuthenticatedGardensGardenIdRouteImport.update({
     id: '/$gardenId',
     path: '/$gardenId',
     getParentRoute: () => AuthenticatedGardensRoute,
   } as any)
-const AuthenticatedLogsIndexRoute = AuthenticatedLogsIndexRouteImport.update({
-  id: '/logs/',
-  path: '/logs/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedLogsNewRoute = AuthenticatedLogsNewRouteImport.update({
-  id: '/logs/new',
-  path: '/logs/new',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedGardenGardenIdRoute =
+  AuthenticatedGardenGardenIdRouteImport.update({
+    id: '/garden/$gardenId',
+    path: '/garden/$gardenId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGardensGardenIdIndexRoute =
   AuthenticatedGardensGardenIdIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedGardensGardenIdRoute,
   } as any)
-const AuthenticatedGardensGardenIdExpensesRoute =
-  AuthenticatedGardensGardenIdExpensesRouteImport.update({
-    id: '/expenses',
-    path: '/expenses',
-    getParentRoute: () => AuthenticatedGardensGardenIdRoute,
-  } as any)
-const AuthenticatedGardensGardenIdJournalRoute =
-  AuthenticatedGardensGardenIdJournalRouteImport.update({
-    id: '/journal',
-    path: '/journal',
-    getParentRoute: () => AuthenticatedGardensGardenIdRoute,
-  } as any)
-const AuthenticatedGardensGardenIdLogsRoute =
-  AuthenticatedGardensGardenIdLogsRouteImport.update({
-    id: '/logs',
-    path: '/logs',
-    getParentRoute: () => AuthenticatedGardensGardenIdRoute,
-  } as any)
-const AuthenticatedGardensGardenIdPhotosRoute =
-  AuthenticatedGardensGardenIdPhotosRouteImport.update({
-    id: '/photos',
-    path: '/photos',
+const AuthenticatedGardensGardenIdTasksRoute =
+  AuthenticatedGardensGardenIdTasksRouteImport.update({
+    id: '/tasks',
+    path: '/tasks',
     getParentRoute: () => AuthenticatedGardensGardenIdRoute,
   } as any)
 const AuthenticatedGardensGardenIdSettingsRoute =
@@ -133,10 +115,28 @@ const AuthenticatedGardensGardenIdSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedGardensGardenIdRoute,
   } as any)
-const AuthenticatedGardensGardenIdTasksRoute =
-  AuthenticatedGardensGardenIdTasksRouteImport.update({
-    id: '/tasks',
-    path: '/tasks',
+const AuthenticatedGardensGardenIdPhotosRoute =
+  AuthenticatedGardensGardenIdPhotosRouteImport.update({
+    id: '/photos',
+    path: '/photos',
+    getParentRoute: () => AuthenticatedGardensGardenIdRoute,
+  } as any)
+const AuthenticatedGardensGardenIdLogsRoute =
+  AuthenticatedGardensGardenIdLogsRouteImport.update({
+    id: '/logs',
+    path: '/logs',
+    getParentRoute: () => AuthenticatedGardensGardenIdRoute,
+  } as any)
+const AuthenticatedGardensGardenIdJournalRoute =
+  AuthenticatedGardensGardenIdJournalRouteImport.update({
+    id: '/journal',
+    path: '/journal',
+    getParentRoute: () => AuthenticatedGardensGardenIdRoute,
+  } as any)
+const AuthenticatedGardensGardenIdExpensesRoute =
+  AuthenticatedGardensGardenIdExpensesRouteImport.update({
+    id: '/expenses',
+    path: '/expenses',
     getParentRoute: () => AuthenticatedGardensGardenIdRoute,
   } as any)
 
@@ -275,18 +275,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/': {
@@ -296,25 +296,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/assistant': {
-      id: '/_authenticated/assistant'
-      path: '/assistant'
-      fullPath: '/assistant'
-      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/diagnose': {
-      id: '/_authenticated/diagnose'
-      path: '/diagnose'
-      fullPath: '/diagnose'
-      preLoaderRoute: typeof AuthenticatedDiagnoseRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/gardens': {
-      id: '/_authenticated/gardens'
-      path: '/gardens'
-      fullPath: '/gardens'
-      preLoaderRoute: typeof AuthenticatedGardensRouteImport
+    '/_authenticated/weather': {
+      id: '/_authenticated/weather'
+      path: '/weather'
+      fullPath: '/weather'
+      preLoaderRoute: typeof AuthenticatedWeatherRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/reports': {
@@ -324,18 +310,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/weather': {
-      id: '/_authenticated/weather'
-      path: '/weather'
-      fullPath: '/weather'
-      preLoaderRoute: typeof AuthenticatedWeatherRouteImport
+    '/_authenticated/gardens': {
+      id: '/_authenticated/gardens'
+      path: '/gardens'
+      fullPath: '/gardens'
+      preLoaderRoute: typeof AuthenticatedGardensRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/garden/$gardenId': {
-      id: '/_authenticated/garden/$gardenId'
-      path: '/garden/$gardenId'
-      fullPath: '/garden/$gardenId'
-      preLoaderRoute: typeof AuthenticatedGardenGardenIdRouteImport
+    '/_authenticated/diagnose': {
+      id: '/_authenticated/diagnose'
+      path: '/diagnose'
+      fullPath: '/diagnose'
+      preLoaderRoute: typeof AuthenticatedDiagnoseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assistant': {
+      id: '/_authenticated/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/logs/': {
+      id: '/_authenticated/logs/'
+      path: '/logs'
+      fullPath: '/logs/'
+      preLoaderRoute: typeof AuthenticatedLogsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/gardens/': {
@@ -345,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGardensIndexRouteImport
       parentRoute: typeof AuthenticatedGardensRoute
     }
+    '/_authenticated/logs/new': {
+      id: '/_authenticated/logs/new'
+      path: '/logs/new'
+      fullPath: '/logs/new'
+      preLoaderRoute: typeof AuthenticatedLogsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/gardens/$gardenId': {
       id: '/_authenticated/gardens/$gardenId'
       path: '/$gardenId'
@@ -352,18 +359,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGardensGardenIdRouteImport
       parentRoute: typeof AuthenticatedGardensRoute
     }
-    '/_authenticated/logs/': {
-      id: '/_authenticated/logs/'
-      path: '/logs'
-      fullPath: '/logs/'
-      preLoaderRoute: typeof AuthenticatedLogsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/logs/new': {
-      id: '/_authenticated/logs/new'
-      path: '/logs/new'
-      fullPath: '/logs/new'
-      preLoaderRoute: typeof AuthenticatedLogsNewRouteImport
+    '/_authenticated/garden/$gardenId': {
+      id: '/_authenticated/garden/$gardenId'
+      path: '/garden/$gardenId'
+      fullPath: '/garden/$gardenId'
+      preLoaderRoute: typeof AuthenticatedGardenGardenIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/gardens/$gardenId/': {
@@ -373,32 +373,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGardensGardenIdIndexRouteImport
       parentRoute: typeof AuthenticatedGardensGardenIdRoute
     }
-    '/_authenticated/gardens/$gardenId/expenses': {
-      id: '/_authenticated/gardens/$gardenId/expenses'
-      path: '/expenses'
-      fullPath: '/gardens/$gardenId/expenses'
-      preLoaderRoute: typeof AuthenticatedGardensGardenIdExpensesRouteImport
-      parentRoute: typeof AuthenticatedGardensGardenIdRoute
-    }
-    '/_authenticated/gardens/$gardenId/journal': {
-      id: '/_authenticated/gardens/$gardenId/journal'
-      path: '/journal'
-      fullPath: '/gardens/$gardenId/journal'
-      preLoaderRoute: typeof AuthenticatedGardensGardenIdJournalRouteImport
-      parentRoute: typeof AuthenticatedGardensGardenIdRoute
-    }
-    '/_authenticated/gardens/$gardenId/logs': {
-      id: '/_authenticated/gardens/$gardenId/logs'
-      path: '/logs'
-      fullPath: '/gardens/$gardenId/logs'
-      preLoaderRoute: typeof AuthenticatedGardensGardenIdLogsRouteImport
-      parentRoute: typeof AuthenticatedGardensGardenIdRoute
-    }
-    '/_authenticated/gardens/$gardenId/photos': {
-      id: '/_authenticated/gardens/$gardenId/photos'
-      path: '/photos'
-      fullPath: '/gardens/$gardenId/photos'
-      preLoaderRoute: typeof AuthenticatedGardensGardenIdPhotosRouteImport
+    '/_authenticated/gardens/$gardenId/tasks': {
+      id: '/_authenticated/gardens/$gardenId/tasks'
+      path: '/tasks'
+      fullPath: '/gardens/$gardenId/tasks'
+      preLoaderRoute: typeof AuthenticatedGardensGardenIdTasksRouteImport
       parentRoute: typeof AuthenticatedGardensGardenIdRoute
     }
     '/_authenticated/gardens/$gardenId/settings': {
@@ -408,11 +387,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGardensGardenIdSettingsRouteImport
       parentRoute: typeof AuthenticatedGardensGardenIdRoute
     }
-    '/_authenticated/gardens/$gardenId/tasks': {
-      id: '/_authenticated/gardens/$gardenId/tasks'
-      path: '/tasks'
-      fullPath: '/gardens/$gardenId/tasks'
-      preLoaderRoute: typeof AuthenticatedGardensGardenIdTasksRouteImport
+    '/_authenticated/gardens/$gardenId/photos': {
+      id: '/_authenticated/gardens/$gardenId/photos'
+      path: '/photos'
+      fullPath: '/gardens/$gardenId/photos'
+      preLoaderRoute: typeof AuthenticatedGardensGardenIdPhotosRouteImport
+      parentRoute: typeof AuthenticatedGardensGardenIdRoute
+    }
+    '/_authenticated/gardens/$gardenId/logs': {
+      id: '/_authenticated/gardens/$gardenId/logs'
+      path: '/logs'
+      fullPath: '/gardens/$gardenId/logs'
+      preLoaderRoute: typeof AuthenticatedGardensGardenIdLogsRouteImport
+      parentRoute: typeof AuthenticatedGardensGardenIdRoute
+    }
+    '/_authenticated/gardens/$gardenId/journal': {
+      id: '/_authenticated/gardens/$gardenId/journal'
+      path: '/journal'
+      fullPath: '/gardens/$gardenId/journal'
+      preLoaderRoute: typeof AuthenticatedGardensGardenIdJournalRouteImport
+      parentRoute: typeof AuthenticatedGardensGardenIdRoute
+    }
+    '/_authenticated/gardens/$gardenId/expenses': {
+      id: '/_authenticated/gardens/$gardenId/expenses'
+      path: '/expenses'
+      fullPath: '/gardens/$gardenId/expenses'
+      preLoaderRoute: typeof AuthenticatedGardensGardenIdExpensesRouteImport
       parentRoute: typeof AuthenticatedGardensGardenIdRoute
     }
   }
@@ -499,13 +499,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
