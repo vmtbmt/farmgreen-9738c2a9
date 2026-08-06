@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { NotebookPen, ArrowLeft, Sprout } from "lucide-react";
