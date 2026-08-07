@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, MapPin, Droplets, Wind, CloudRain, RefreshCw, Locate } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,26 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
     refresh();
   };
 
+  const recommendation = useMemo(() => {
+    if (!data) return null;
+    if (data.precipProbability >= 70 || data.rainfall >= 2) {
+      return {
+        text: "Khuyến nghị: Không nên phun thuốc hôm nay",
+        variant: "warning",
+      };
+    }
+    if (data.precipProbability >= 40) {
+      return {
+        text: "Khuyến nghị: Có thể mưa, ưu tiên công việc khô ráo",
+        variant: "accent",
+      };
+    }
+    return {
+      text: "Khuyến nghị: Thời tiết thuận lợi cho công việc ngoài trời",
+      variant: "success",
+    };
+  }, [data]);
+
   // Chế độ gọn: ẩn hoàn toàn nếu chưa có dữ liệu thời tiết
   if (compact) {
     if (!data) return null;
@@ -44,7 +64,14 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
                 <span className="text-lg">{data.emoji}</span>
                 <span className="truncate text-xs opacity-95">{data.description}</span>
               </div>
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] opacity-95">
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] opacity-95">
+                {recommendation ? (
+                  <span className="rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-medium">
+                    {recommendation.text}
+                  </span>
+                ) : null}
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] opacity-95">
                 <span className="flex items-center gap-1">
                   <Droplets className="h-3.5 w-3.5" />
                   {data.humidity}%
