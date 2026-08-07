@@ -7,10 +7,8 @@ const tabs = [
   { key: "tasks", label: "Công việc", to: "/gardens/$gardenId/tasks" },
   { key: "journal", label: "Ghi nhật ký", to: "/gardens/$gardenId/journal" },
   { key: "logs", label: "Lịch sử nhật ký", to: "/gardens/$gardenId/logs" },
-
   { key: "expenses", label: "Chi phí", to: "/gardens/$gardenId/expenses" },
   { key: "photos", label: "Ảnh", to: "/gardens/$gardenId/photos" },
-  { key: "settings", label: "Cài đặt", to: "/gardens/$gardenId/settings" },
 ] as const;
 
 
