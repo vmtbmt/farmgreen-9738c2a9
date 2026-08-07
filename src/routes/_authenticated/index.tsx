@@ -173,7 +173,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Second row: Alerts */}
+      {/* Second row: Alerts (3-card layout similar to mock) */}
       <div className="grid gap-4 lg:grid-cols-3">
         {attention.length === 0 ? (
           <Card className="col-span-3">
@@ -190,25 +190,100 @@ function Dashboard() {
             </CardContent>
           </Card>
         ) : (
-          attention.map((a) => (
-            <AlertCard key={a.garden.id} title={a.garden.name} description={a.reasons.join(" · ")} level={a.level} to={`/gardens/${a.garden.id}`} />
-          ))
+          <>
+            {attention.slice(0,3).map((a, i) => (
+              <Card key={a.garden.id} className="rounded-xl">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                      {/* differentiate icon by index */}
+                      {i === 0 ? <AlertTriangle className="h-6 w-6 text-amber-500" /> : <Sun className="h-6 w-6 text-sky-500" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold">{a.garden.name}</p>
+                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{a.reasons.join(' · ')}</p>
+                        </div>
+                        <Badge variant="secondary" className={a.level === 'high' ? 'bg-destructive/10 text-destructive' : ''}>{a.level === 'high' ? 'Khẩn' : 'Cần chú ý'}</Badge>
+                      </div>
+                      <div className="mt-3 flex items-center gap-2">
+                        <Button asChild size="sm">
+                          <Link to={`/gardens/${a.garden.id}`}>Xem chi tiết</Link>
+                        </Button>
+                        <Button size="sm" variant="outline">Ghi nhật ký</Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
         )}
       </div>
 
-      {/* Third row: Statistics */}
-      <div className="grid gap-4 lg:grid-cols-5">
-        <StatCard label="Khu vườn" value={gardens.length} hint="đang quản lý" icon={<Sprout className="h-5 w-5" />} />
-        <StatCard label="Tổng diện tích" value={`${stats.totalArea} ha`} hint="tổng diện tích" icon={<Image className="h-5 w-5" />} />
-        <StatCard label="Việc hôm nay" value={stats.tasksToday.length} hint="đến hạn hôm nay" icon={<ListChecks className="h-5 w-5" />} />
-        <StatCard label="Chi phí tháng" value={currency(stats.monthlyCost)} hint="từ nhật ký" icon={<Wallet className="h-5 w-5" />} />
-        <StatCard label="Doanh thu năm" value={'—'} hint="không có dữ liệu" icon={<FilePlus className="h-5 w-5" />} />
+      {/* Third row: Statistics (compact colorful tiles) */}
+      <div className="grid gap-4 lg:grid-cols-4">
+        <div className="rounded-xl border border-border bg-card/50 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-emerald-50 p-2 text-emerald-700">
+              <Sprout className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Diện tích canh tác</div>
+              <div className="mt-1 text-lg font-bold">{stats.totalArea} ha</div>
+              <div className="text-[11px] text-muted-foreground">{gardens.length} khu vườn</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card/50 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-sky-50 p-2 text-sky-600">
+              <Image className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Số cây trồng</div>
+              <div className="mt-1 text-lg font-bold">—</div>
+              <div className="text-[11px] text-muted-foreground">Tổng số cây</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card/50 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-amber-50 p-2 text-amber-600">
+              <ListChecks className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Việc hôm nay</div>
+              <div className="mt-1 text-lg font-bold">{stats.tasksToday.length}</div>
+              <div className="text-[11px] text-muted-foreground">Việc đến hạn hôm nay</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card/50 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-rose-50 p-2 text-rose-600">
+              <Wallet className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Chi phí tháng</div>
+              <div className="mt-1 text-lg font-bold">{currency(stats.monthlyCost)}</div>
+              <div className="text-[11px] text-muted-foreground">Từ nhật ký</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Fourth row: Garden Cards */}
       <div>
-        <h2 className="mb-3 text-lg font-semibold">Khu vườn</h2>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="flex items-center justify-between">
+          <h2 className="mb-3 text-lg font-semibold">Các khu vườn của bạn</h2>
+          <Link to="/gardens" className="text-sm text-primary underline-offset-2 hover:underline">Xem tất cả →</Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {gardens.map((g) => {
             const gTasks = allTasks.filter((t) => t.gardenId === g.id && isTaskOpen(t));
             const taskCount = gTasks.length;
@@ -221,23 +296,26 @@ function Dashboard() {
                 key={g.id}
                 to="/gardens/$gardenId"
                 params={{ gardenId: g.id }}
-                className="group block rounded-xl border border-border bg-card/50 p-4 transition hover:shadow-lg"
+                className="group block rounded-xl border border-border bg-card/50 overflow-hidden transition hover:shadow-lg"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
-                    <Sprout className="h-6 w-6 text-accent-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="truncate text-sm font-semibold">{g.name}</h3>
-                      <Badge variant="secondary">{g.crop}</Badge>
+                <div className="h-36 w-full overflow-hidden">
+                  {/* Placeholder thumbnail: use accent gradient with crop name overlay (no fake data added) */}
+                  <div className="h-36 w-full bg-gradient-to-r from-emerald-400 to-emerald-600 flex items-end p-3 text-white">
+                    <div>
+                      <div className="text-sm font-semibold">{g.name}</div>
+                      <div className="text-xs opacity-90">{g.crop} • {g.area} ha</div>
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">Diện tích: {g.area} ha • {health}</p>
                   </div>
                 </div>
-                <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                  <div>{taskCount} việc</div>
-                  <div>{monthlyExpense > 0 ? currency(monthlyExpense) : '0 đ'}</div>
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-3 w-3 rounded-full ${att ? (att.level === 'high' ? 'bg-destructive' : 'bg-amber-500') : 'bg-emerald-500'}`} />
+                      <div className="text-sm font-medium">{g.name}</div>
+                    </div>
+                    <Badge variant="secondary">{g.crop}</Badge>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">{taskCount} việc • Chi phí tháng {monthlyExpense > 0 ? currency(monthlyExpense) : '0 đ'}</p>
                 </div>
               </Link>
             );
@@ -278,14 +356,17 @@ function Dashboard() {
       </div>
 
       {/* Bottom: Quick Actions */}
-      <div className="sticky bottom-6 z-20 mt-6 grid w-full grid-cols-2 gap-3 md:grid-cols-5">
-        <Button asChild className="rounded-xl gradient-primary text-primary-foreground">
-          <Link to="/logs/new"><Plus /> Ghi nhật ký</Link>
-        </Button>
-        <Link to="/gardens"><Button className="rounded-xl"><Sprout /> Khu vườn</Button></Link>
-        <Link to="/diagnose"><Button className="rounded-xl"><AlertTriangle /> Scan bệnh</Button></Link>
-        <Link to="/reports"><Button className="rounded-xl"><FilePlus /> Báo cáo</Button></Link>
-        <Link to="/gardens"><Button className="rounded-xl"><ListChecks /> Thêm việc</Button></Link>
+      <div className="mt-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button asChild className="rounded-full bg-emerald-600 text-white px-4 py-2 shadow-md">
+            <Link to="/logs/new" className="flex items-center gap-2"><Plus /> Thêm nhật ký</Link>
+          </Button>
+          <Link to="/gardens"><Button className="rounded-full px-4 py-2">Thêm khu vườn</Button></Link>
+          <Link to="/diagnose"><Button className="rounded-full px-4 py-2"><AlertTriangle /> Scan bệnh</Button></Link>
+          <Link to="/reports"><Button className="rounded-full px-4 py-2"><FilePlus /> Báo cáo</Button></Link>
+          <Link to="/gardens"><Button className="rounded-full px-4 py-2"><ListChecks /> Thêm việc</Button></Link>
+          <Button className="ml-auto rounded-full bg-primary text-primary-foreground px-3 py-2">+ </Button>
+        </div>
       </div>
     </div>
   );
