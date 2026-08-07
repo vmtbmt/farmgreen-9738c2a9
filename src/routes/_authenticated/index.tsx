@@ -14,8 +14,10 @@ import {
   CheckSquare,
   Clock3,
   ShieldAlert,
+  Loader2,
 } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useFarmActions } from "@/lib/farm-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -218,6 +220,7 @@ function Dashboard() {
       });
     } catch (e) {
       console.error("Failed to update task status", e);
+      toast.error(e instanceof Error ? e.message : "Không thể cập nhật trạng thái");
     } finally {
       setBusyTaskIds((s) => ({ ...s, [task.id]: false }));
     }
@@ -303,12 +306,16 @@ function Dashboard() {
                     <li key={task.id} className="rounded-3xl border border-border bg-white p-4 shadow-sm">
                       <div className="flex items-start gap-4">
                         <label className="mt-1 flex h-5 w-5 items-center justify-center">
-                          <input
-                            type="checkbox"
-                            checked={task.status === "Completed"}
-                            onChange={async () => await toggleTaskComplete(task)}
-                            className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                          />
+                          {busyTaskIds[task.id] ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
+                          ) : (
+                            <input
+                              type="checkbox"
+                              checked={task.status === "Completed"}
+                              onChange={async () => await toggleTaskComplete(task)}
+                              className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                            />
+                          )}
                         </label>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-slate-900">{task.title}</p>
