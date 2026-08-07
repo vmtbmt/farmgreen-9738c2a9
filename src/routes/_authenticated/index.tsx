@@ -305,17 +305,16 @@ function Dashboard() {
                   return (
                     <li key={task.id} className="rounded-3xl border border-border bg-white p-4 shadow-sm">
                       <div className="flex items-start gap-4">
-                        <label className="mt-1 flex h-5 w-5 items-center justify-center">
-                          {busyTaskIds[task.id] ? (
-                            <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-                          ) : (
-                            <input
-                              type="checkbox"
-                              checked={task.status === "Completed"}
-                              onChange={async () => await toggleTaskComplete(task)}
-                              className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                            />
-                          )}
+                        <label className="mt-1 flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={task.status === "Completed"}
+                            onChange={async () => await toggleTaskComplete(task)}
+                            disabled={!!busyTaskIds[task.id]}
+                            aria-busy={busyTaskIds[task.id] ? true : undefined}
+                            className={`h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 ${busyTaskIds[task.id] ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          />
+                          {busyTaskIds[task.id] && <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />}
                         </label>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-slate-900">{task.title}</p>
