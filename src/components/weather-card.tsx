@@ -112,7 +112,7 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
   }
 
   return (
-    <Card className="overflow-hidden border-none bg-gradient-to-br from-sky-500 via-sky-600 to-emerald-600 text-white shadow-lg">
+    <Card className="overflow-hidden rounded-3xl border border-border bg-white/95 text-slate-900 shadow-sm">
       <CardContent className="p-5">
         {isError && !data ? (
           <div className="space-y-3">
