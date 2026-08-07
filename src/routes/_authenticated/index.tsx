@@ -14,8 +14,11 @@ import {
   CheckSquare,
   Clock3,
   ShieldAlert,
+  Loader2,
 } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useFarmActions } from "@/lib/farm-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -178,6 +181,9 @@ function Dashboard() {
   const greetingBase = hour < 12 ? "Chào buổi sáng" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
 
   const [userName, setUserName] = useState<string | null>(null);
+  const farmActions = useFarmActions();
+  const [busyTaskIds, setBusyTaskIds] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     let mounted = true;
     supabase.auth.getUser().then(({ data }) => {
@@ -195,6 +201,36 @@ function Dashboard() {
   }, []);
 
   const greeting = userName ? `Xin chào, ${userName}!` : `${greetingBase}`;
+
+  async function toggleTaskComplete(task: any) {
+    if (busyTaskIds[task.id]) return;
+    try {
+      setBusyTaskIds((s) => ({ ...s, [task.id]: true }));
+      const newStatus = task.status === "Completed" ? "Todo" : "Completed";
+      await farmActions.updateGardenTask(task.id, {
+        gardenId: task.gardenId,
+        title: task.title,
+        description: task.description ?? "",
+        category: task.category ?? "Other",
+        priority: task.priority ?? "Medium",
+        status: newStatus,
+        dueDate: task.dueDate ?? null,
+        reminderAt: task.reminderAt ?? null,
+        notes: task.notes ?? "",
+      });
+      // Thông báo thành công
+      if (newStatus === "Completed") {
+        toast.success("Đã đánh dấu hoàn thành.");
+      } else {
+        toast.success("Đã chuyển về chưa hoàn thành.");
+      }
+    } catch (e) {
+      console.error("Failed to update task status", e);
+      toast.error(e instanceof Error ? e.message : "Không thể cập nhật trạng thái");
+    } finally {
+      setBusyTaskIds((s) => ({ ...s, [task.id]: false }));
+    }
+  }
   const formattedDate = new Intl.DateTimeFormat("vi-VN", {
     weekday: "long",
     day: "numeric",
@@ -239,9 +275,8 @@ function Dashboard() {
           <div className="rounded-3xl border border-border bg-white/95 p-5 shadow-sm">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-900">Thời tiết Đắk Lắk</p>
-                <p className="mt-1 text-sm text-muted-foreground">Dự báo hôm nay và gợi ý công việc chăm sóc vườn.</p>
-              </div>
+                  <p className="text-sm font-semibold text-slate-900">Thời tiết Đắk Lắk</p>
+                </div>
               <Button asChild variant="outline" size="sm" className="rounded-full px-4 py-2">
                 <Link to="/weather">Xem chi tiết</Link>
               </Button>
@@ -276,9 +311,17 @@ function Dashboard() {
                   return (
                     <li key={task.id} className="rounded-3xl border border-border bg-white p-4 shadow-sm">
                       <div className="flex items-start gap-4">
-                        <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-slate-500">
-                          <CheckSquare className="h-4 w-4" />
-                        </div>
+                        <label className="mt-1 flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={task.status === "Completed"}
+                            onChange={async () => await toggleTaskComplete(task)}
+                            disabled={!!busyTaskIds[task.id]}
+                            aria-busy={busyTaskIds[task.id] ? true : undefined}
+                            className={`h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 ${busyTaskIds[task.id] ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          />
+                          {busyTaskIds[task.id] && <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />}
+                        </label>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-slate-900">{task.title}</p>
                           <p className="mt-1 text-xs text-muted-foreground">{task.garden?.name ?? "Khu vườn"}</p>
