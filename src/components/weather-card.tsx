@@ -220,7 +220,7 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
 
             {!recommendation && (
               <Link to="/weather" className="block rounded-lg bg-white/15 py-2 text-center text-sm font-medium backdrop-blur transition hover:bg-white/25">Xem dự báo 7 ngày →</Link>
-            )
+            )}
           </div>
         )}
       </CardContent>
