@@ -117,7 +117,7 @@ export function DashboardAI() {
               <MiniStat label="Nhiều chi phí" value={data.summary.top_cost_garden ?? "—"} />
             </div>
 
-            <Accordion type="multiple" defaultValue={["reco"]} className="w-full">
+            <Accordion type="multiple" defaultValue={[]} className="w-full">
               <AccordionItem value="reco">
                 <AccordionTrigger>
                   <span className="flex items-center gap-2">
