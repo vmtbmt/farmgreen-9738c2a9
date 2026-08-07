@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, MapPin, Droplets, Wind, CloudRain, RefreshCw, Locate, Info } from "lucide-react";
+import { Loader2, MapPin, Droplets, Wind, CloudRain, RefreshCw, Locate, Info, Sun } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
