@@ -28,7 +28,6 @@ import { Route as AuthenticatedGardensGardenIdExpensesRouteImport } from './rout
 import { Route as AuthenticatedGardensGardenIdJournalRouteImport } from './routes/_authenticated/gardens.$gardenId.journal'
 import { Route as AuthenticatedGardensGardenIdLogsRouteImport } from './routes/_authenticated/gardens.$gardenId.logs'
 import { Route as AuthenticatedGardensGardenIdPhotosRouteImport } from './routes/_authenticated/gardens.$gardenId.photos'
-import { Route as AuthenticatedGardensGardenIdSettingsRouteImport } from './routes/_authenticated/gardens.$gardenId.settings'
 import { Route as AuthenticatedGardensGardenIdTasksRouteImport } from './routes/_authenticated/gardens.$gardenId.tasks'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -133,12 +132,6 @@ const AuthenticatedGardensGardenIdPhotosRoute =
     path: '/photos',
     getParentRoute: () => AuthenticatedGardensGardenIdRoute,
   } as any)
-const AuthenticatedGardensGardenIdSettingsRoute =
-  AuthenticatedGardensGardenIdSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedGardensGardenIdRoute,
-  } as any)
 const AuthenticatedGardensGardenIdTasksRoute =
   AuthenticatedGardensGardenIdTasksRouteImport.update({
     id: '/tasks',
@@ -164,7 +157,6 @@ export interface FileRoutesByFullPath {
   '/gardens/$gardenId/journal': typeof AuthenticatedGardensGardenIdJournalRoute
   '/gardens/$gardenId/logs': typeof AuthenticatedGardensGardenIdLogsRoute
   '/gardens/$gardenId/photos': typeof AuthenticatedGardensGardenIdPhotosRoute
-  '/gardens/$gardenId/settings': typeof AuthenticatedGardensGardenIdSettingsRoute
   '/gardens/$gardenId/tasks': typeof AuthenticatedGardensGardenIdTasksRoute
   '/gardens/$gardenId/': typeof AuthenticatedGardensGardenIdIndexRoute
 }
@@ -184,7 +176,6 @@ export interface FileRoutesByTo {
   '/gardens/$gardenId/journal': typeof AuthenticatedGardensGardenIdJournalRoute
   '/gardens/$gardenId/logs': typeof AuthenticatedGardensGardenIdLogsRoute
   '/gardens/$gardenId/photos': typeof AuthenticatedGardensGardenIdPhotosRoute
-  '/gardens/$gardenId/settings': typeof AuthenticatedGardensGardenIdSettingsRoute
   '/gardens/$gardenId/tasks': typeof AuthenticatedGardensGardenIdTasksRoute
   '/gardens/$gardenId': typeof AuthenticatedGardensGardenIdIndexRoute
 }
@@ -208,7 +199,6 @@ export interface FileRoutesById {
   '/_authenticated/gardens/$gardenId/journal': typeof AuthenticatedGardensGardenIdJournalRoute
   '/_authenticated/gardens/$gardenId/logs': typeof AuthenticatedGardensGardenIdLogsRoute
   '/_authenticated/gardens/$gardenId/photos': typeof AuthenticatedGardensGardenIdPhotosRoute
-  '/_authenticated/gardens/$gardenId/settings': typeof AuthenticatedGardensGardenIdSettingsRoute
   '/_authenticated/gardens/$gardenId/tasks': typeof AuthenticatedGardensGardenIdTasksRoute
   '/_authenticated/gardens/$gardenId/': typeof AuthenticatedGardensGardenIdIndexRoute
 }
@@ -232,7 +222,6 @@ export interface FileRouteTypes {
     | '/gardens/$gardenId/journal'
     | '/gardens/$gardenId/logs'
     | '/gardens/$gardenId/photos'
-    | '/gardens/$gardenId/settings'
     | '/gardens/$gardenId/tasks'
     | '/gardens/$gardenId/'
   fileRoutesByTo: FileRoutesByTo
@@ -252,7 +241,6 @@ export interface FileRouteTypes {
     | '/gardens/$gardenId/journal'
     | '/gardens/$gardenId/logs'
     | '/gardens/$gardenId/photos'
-    | '/gardens/$gardenId/settings'
     | '/gardens/$gardenId/tasks'
     | '/gardens/$gardenId'
   id:
@@ -275,7 +263,6 @@ export interface FileRouteTypes {
     | '/_authenticated/gardens/$gardenId/journal'
     | '/_authenticated/gardens/$gardenId/logs'
     | '/_authenticated/gardens/$gardenId/photos'
-    | '/_authenticated/gardens/$gardenId/settings'
     | '/_authenticated/gardens/$gardenId/tasks'
     | '/_authenticated/gardens/$gardenId/'
   fileRoutesById: FileRoutesById
@@ -420,13 +407,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGardensGardenIdPhotosRouteImport
       parentRoute: typeof AuthenticatedGardensGardenIdRoute
     }
-    '/_authenticated/gardens/$gardenId/settings': {
-      id: '/_authenticated/gardens/$gardenId/settings'
-      path: '/settings'
-      fullPath: '/gardens/$gardenId/settings'
-      preLoaderRoute: typeof AuthenticatedGardensGardenIdSettingsRouteImport
-      parentRoute: typeof AuthenticatedGardensGardenIdRoute
-    }
     '/_authenticated/gardens/$gardenId/tasks': {
       id: '/_authenticated/gardens/$gardenId/tasks'
       path: '/tasks'
@@ -442,7 +422,6 @@ interface AuthenticatedGardensGardenIdRouteChildren {
   AuthenticatedGardensGardenIdJournalRoute: typeof AuthenticatedGardensGardenIdJournalRoute
   AuthenticatedGardensGardenIdLogsRoute: typeof AuthenticatedGardensGardenIdLogsRoute
   AuthenticatedGardensGardenIdPhotosRoute: typeof AuthenticatedGardensGardenIdPhotosRoute
-  AuthenticatedGardensGardenIdSettingsRoute: typeof AuthenticatedGardensGardenIdSettingsRoute
   AuthenticatedGardensGardenIdTasksRoute: typeof AuthenticatedGardensGardenIdTasksRoute
   AuthenticatedGardensGardenIdIndexRoute: typeof AuthenticatedGardensGardenIdIndexRoute
 }
@@ -457,8 +436,6 @@ const AuthenticatedGardensGardenIdRouteChildren: AuthenticatedGardensGardenIdRou
       AuthenticatedGardensGardenIdLogsRoute,
     AuthenticatedGardensGardenIdPhotosRoute:
       AuthenticatedGardensGardenIdPhotosRoute,
-    AuthenticatedGardensGardenIdSettingsRoute:
-      AuthenticatedGardensGardenIdSettingsRoute,
     AuthenticatedGardensGardenIdTasksRoute:
       AuthenticatedGardensGardenIdTasksRoute,
     AuthenticatedGardensGardenIdIndexRoute:
