@@ -40,15 +40,15 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="bg-emerald-800 text-white">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary">
-            <Leaf className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600">
+            <Leaf className="h-5 w-5 text-white" />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold text-sidebar-foreground">Nông Trại Xanh</span>
-            <span className="text-xs text-sidebar-foreground/70">Trợ lý AI nông nghiệp</span>
+            <span className="text-sm font-semibold text-white">Nông Trại Xanh</span>
+            <span className="text-xs text-white/80">Trợ lý AI nông nghiệp</span>
           </div>
         </div>
       </SidebarHeader>
