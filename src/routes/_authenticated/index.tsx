@@ -218,6 +218,12 @@ function Dashboard() {
         reminderAt: task.reminderAt ?? null,
         notes: task.notes ?? "",
       });
+      // Thông báo thành công
+      if (newStatus === "Completed") {
+        toast.success("Đã đánh dấu hoàn thành.");
+      } else {
+        toast.success("Đã chuyển về chưa hoàn thành.");
+      }
     } catch (e) {
       console.error("Failed to update task status", e);
       toast.error(e instanceof Error ? e.message : "Không thể cập nhật trạng thái");
