@@ -1,14 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, MapPin, Droplets, Wind, CloudRain, RefreshCw, Locate } from "lucide-react";
+import { Loader2, MapPin, Droplets, Wind, CloudRain, RefreshCw, Locate, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { useWeather } from "@/lib/use-weather";
 
 const COOLDOWN_SECONDS = 60;
 
 export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
-  const { data, isLoading, isFetching, isError, error, refresh, location, requestGPS } = useWeather();
+  const { data, isLoading, isFetching, isError, error, refresh, location, requestGPS, dataUpdatedAt } = useWeather();
   const isRateLimited = error instanceof Error && /429/.test(error.message);
   const [cooldown, setCooldown] = useState(0);
 
@@ -70,10 +71,15 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] opacity-95">
               {recommendation ? (
-                <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${tone}`}>
-                  {recommendation.icon}
-                  <span className="truncate">{recommendation.text}</span>
-                </span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${tone}`}>
+                      {recommendation.icon}
+                      <span className="truncate">{recommendation.text}</span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{explainWeatherRecommendation(recommendation.text)}</TooltipContent>
+                </Tooltip>
               ) : null}
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] opacity-95">
@@ -92,20 +98,25 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
             </div>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 text-white hover:bg-white/20"
-              onClick={handleRefresh}
-              disabled={isFetching || cooldown > 0}
-              aria-label="Cập nhật thời tiết"
-            >
-              {isFetching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
+            <div className="flex items-center gap-2">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 text-white hover:bg-white/20"
+                onClick={handleRefresh}
+                disabled={isFetching || cooldown > 0}
+                aria-label="Cập nhật thời tiết"
+              >
+                {isFetching ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </Button>
+              {typeof dataUpdatedAt === "number" && (
+                <div className="text-xs text-white/90">Cập nhật: {new Date(dataUpdatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</div>
               )}
-            </Button>
+            </div>
             <Link to="/weather" className="text-[11px] font-medium underline-offset-2 hover:underline">
               7 ngày →
             </Link>
@@ -189,7 +200,17 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
                     {recommendation.icon}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold">Khuyến nghị</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-semibold">Khuyến nghị</div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button size="icon" variant="ghost" className="h-6 w-6 p-0">
+                            <Info className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">{explainWeatherRecommendation(recommendation.text)}</TooltipContent>
+                      </Tooltip>
+                    </div>
                     <div className="text-xs text-muted-foreground">{recommendation.text}</div>
                   </div>
                 </div>
@@ -214,4 +235,12 @@ function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string
       <div className="mt-0.5 text-sm font-semibold">{value}</div>
     </div>
   );
+}
+
+function explainWeatherRecommendation(text: string) {
+  const t = text.toLowerCase();
+  if (t.includes("phun")) return "Hoãn phun thuốc: tránh phun khi trời có mưa hoặc độ ẩm cao để giảm rủi ro thất bại và lãng phí thuốc.";
+  if (t.includes("mưa") || t.includes("ưu tiên công việc khô ráo")) return "Lưu ý mưa: lên lịch các công việc cần trời khô (cắt tỉa, phun thuốc) vào thời điểm khô ráo để hiệu quả.";
+  if (t.includes("thuận lợi")) return "Thời tiết thuận lợi: có thể thực hiện các công việc ngoài trời như tưới, bón, thu hoạch nhẹ nhàng.";
+  return "Khuyến nghị: kiểm tra chi tiết thời tiết hoặc mở mục thời tiết để biết hướng dẫn cụ thể.";
 }
