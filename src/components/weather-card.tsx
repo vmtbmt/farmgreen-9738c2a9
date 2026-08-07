@@ -31,84 +31,89 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
     if (!data) return null;
     if (data.precipProbability >= 70 || data.rainfall >= 2) {
       return {
-        text: "Khuyến nghị: Không nên phun thuốc hôm nay",
-        variant: "warning",
+        text: "Không nên phun thuốc hôm nay",
+        variant: "danger",
+        icon: <CloudRain className="h-4 w-4" />,
       };
     }
     if (data.precipProbability >= 40) {
       return {
-        text: "Khuyến nghị: Có thể mưa, ưu tiên công việc khô ráo",
-        variant: "accent",
+        text: "Có thể mưa — ưu tiên công việc khô ráo",
+        variant: "warning",
+        icon: <Droplets className="h-4 w-4" />,
       };
     }
     return {
-      text: "Khuyến nghị: Thời tiết thuận lợi cho công việc ngoài trời",
+      text: "Thời tiết thuận lợi cho công việc ngoài trời",
       variant: "success",
+      icon: <Sun className="h-4 w-4" />,
     };
   }, [data]);
 
   // Chế độ gọn: ẩn hoàn toàn nếu chưa có dữ liệu thời tiết
   if (compact) {
     if (!data) return null;
-    return (
-      <Card className="overflow-hidden border-none bg-gradient-to-br from-sky-500 via-sky-600 to-emerald-600 text-white shadow-lg">
-        <CardContent className="p-4">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 text-[11px] opacity-90">
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{location?.label || data.location}</span>
-              </div>
-              <div className="mt-0.5 flex items-baseline gap-2">
-                <span className="text-3xl font-black leading-none">{data.temperature}°</span>
-                <span className="text-lg">{data.emoji}</span>
-                <span className="truncate text-xs opacity-95">{data.description}</span>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] opacity-95">
-                {recommendation ? (
-                  <span className="rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-medium">
-                    {recommendation.text}
-                  </span>
-                ) : null}
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] opacity-95">
-                <span className="flex items-center gap-1">
-                  <Droplets className="h-3.5 w-3.5" />
-                  {data.humidity}%
-                </span>
-                <span className="flex items-center gap-1">
-                  <CloudRain className="h-3.5 w-3.5" />
-                  {data.rainfall} mm
-                </span>
-                <span className="flex items-center gap-1">
-                  <Wind className="h-3.5 w-3.5" />
-                  {data.windSpeed} km/h
-                </span>
-              </div>
+  const tone = recommendation?.variant === 'danger' ? 'bg-rose-50 text-rose-700 border-rose-200' : recommendation?.variant === 'warning' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  return (
+    <Card className="overflow-hidden border-none bg-gradient-to-br from-sky-500 via-sky-600 to-emerald-600 text-white shadow-lg">
+      <CardContent className="p-4">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-[11px] opacity-90">
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{location?.label || data.location}</span>
             </div>
-            <div className="flex shrink-0 flex-col items-end gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-white hover:bg-white/20"
-                onClick={handleRefresh}
-                disabled={isFetching || cooldown > 0}
-                aria-label="Cập nhật thời tiết"
-              >
-                {isFetching ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-              </Button>
-              <Link to="/weather" className="text-[11px] font-medium underline-offset-2 hover:underline">
-                7 ngày →
-              </Link>
+            <div className="mt-0.5 flex items-baseline gap-2">
+              <span className="text-3xl font-black leading-none">{data.temperature}°</span>
+              <span className="text-lg">{data.emoji}</span>
+              <span className="truncate text-xs opacity-95">{data.description}</span>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] opacity-95">
+              {recommendation ? (
+                <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${tone}`}>
+                  {recommendation.icon}
+                  <span className="truncate">{recommendation.text}</span>
+                </span>
+              ) : null}
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] opacity-95">
+              <span className="flex items-center gap-1">
+                <Droplets className="h-3.5 w-3.5" />
+                {data.humidity}%
+              </span>
+              <span className="flex items-center gap-1">
+                <CloudRain className="h-3.5 w-3.5" />
+                {data.rainfall} mm
+              </span>
+              <span className="flex items-center gap-1">
+                <Wind className="h-3.5 w-3.5" />
+                {data.windSpeed} km/h
+              </span>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    );
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-white hover:bg-white/20"
+              onClick={handleRefresh}
+              disabled={isFetching || cooldown > 0}
+              aria-label="Cập nhật thời tiết"
+            >
+              {isFetching ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </Button>
+            <Link to="/weather" className="text-[11px] font-medium underline-offset-2 hover:underline">
+              7 ngày →
+            </Link>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
   }
 
   return (
@@ -177,12 +182,24 @@ export function WeatherCard({ compact = false }: { compact?: boolean } = {}) {
               <MiniStat icon={<Wind className="h-4 w-4" />} label="Gió" value={`${data.windSpeed} km/h`} />
             </div>
 
-            <Link
-              to="/weather"
-              className="block rounded-lg bg-white/15 py-2 text-center text-sm font-medium backdrop-blur transition hover:bg-white/25"
-            >
-              Xem dự báo 7 ngày →
-            </Link>
+            {recommendation && (
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className={`rounded-full p-2 ${recommendation.variant === 'danger' ? 'bg-rose-50 text-rose-700' : recommendation.variant === 'warning' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                    {recommendation.icon}
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold">Khuyến nghị</div>
+                    <div className="text-xs text-muted-foreground">{recommendation.text}</div>
+                  </div>
+                </div>
+                <Link to="/weather" className="text-sm font-medium text-primary hover:underline">Xem chi tiết thời tiết →</Link>
+              </div>
+            )}
+
+            {!recommendation && (
+              <Link to="/weather" className="block rounded-lg bg-white/15 py-2 text-center text-sm font-medium backdrop-blur transition hover:bg-white/25">Xem dự báo 7 ngày →</Link>
+            )
           </div>
         )}
       </CardContent>
