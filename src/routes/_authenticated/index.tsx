@@ -16,11 +16,12 @@ import {
   Image,
   FilePlus,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useFarmStore, useAllGardenTasks } from "@/lib/farm-store";
+import { supabase } from "@/integrations/supabase/client";
 import { isTaskOpen, isOverdue } from "@/lib/garden-task-utils";
 import { DashboardAI } from "@/components/dashboard-ai";
 import { WeatherCard } from "@/components/weather-card";
@@ -99,7 +100,27 @@ function Dashboard() {
   const gardenById = new Map(gardens.map((g) => [g.id, g]));
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Chào buổi sáng" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
+  const greetingBase = hour < 12 ? "Chào buổi sáng" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
+
+  const [userName, setUserName] = useState<string | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!mounted) return;
+      const u = data.user;
+      if (!u) return setUserName(null);
+      // Prefer user metadata full name, fall back to email prefix
+      const metaName = (u.user_metadata as any)?.full_name || (u.user_metadata as any)?.name;
+      if (metaName) return setUserName(String(metaName));
+      if (u.email) return setUserName(u.email.split("@")[0]);
+      return setUserName(null);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const greeting = userName ? `Xin chào, ${userName}!` : `${greetingBase}`;
 
   const headline =
     stats.overdue.length > 0
@@ -122,12 +143,20 @@ function Dashboard() {
 
         <div className="hidden sm:flex sm:items-center sm:justify-end lg:col-span-3">
           <div className="ml-auto flex items-center gap-3">
-            <Button variant="ghost" className="rounded-xl p-2" title="Thông báo">
-              <Bell className="h-5 w-5" />
-            </Button>
-            <Button asChild size="lg" className="gradient-primary shrink-0 text-primary-foreground">
-              <Link to="/logs/new">
-                <Plus /> Ghi nhật ký
+            <div className="relative">
+              <Button variant="ghost" className="rounded-xl p-2" title="Thông báo">
+                <Bell className="h-5 w-5" />
+              </Button>
+              {stats.overdue.length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-white text-xs font-semibold">
+                  {stats.overdue.length}
+                </span>
+              )}
+            </div>
+
+            <Button asChild size="lg" className="rounded-xl bg-emerald-600 text-white shadow-md hover:bg-emerald-700">
+              <Link to="/logs/new" className="flex items-center gap-2 px-4 py-2">
+                <Plus className="h-4 w-4" /> Ghi nhật ký nhanh
               </Link>
             </Button>
           </div>
