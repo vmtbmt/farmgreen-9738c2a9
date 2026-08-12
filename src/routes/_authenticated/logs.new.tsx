@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ACTIVITY_TYPES, useFarmActions, useFarmStore, type ActivityType } from "@/lib/farm-store";
+import { ACTIVITY_TYPES, useFarmActions, useFarmStore, type ActivityType, type GardenTaskInput } from "@/lib/farm-store";
 
 const searchSchema = z.object({
   gardenId: z.string().optional(),
@@ -26,10 +26,10 @@ export const Route = createFileRoute("/_authenticated/logs/new")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Ghi nhật ký — Nông Trại Xanh" },
-      { name: "description", content: "Thêm nhật ký hoạt động cho khu vườn." },
-      { property: "og:title", content: "Ghi nhật ký — Nông Trại Xanh" },
-      { property: "og:description", content: "Ghi lại hoạt động chăm sóc nông trại." },
+      { title: "Thêm công việc — Nông Trại Xanh" },
+      { name: "description", content: "Thêm công việc cho khu vườn." },
+      { property: "og:title", content: "Thêm công việc — Nông Trại Xanh" },
+      { property: "og:description", content: "Thêm công việc và ghi nhận chi phí, ghi chú." },
     ],
   }),
   component: NewLogPage,
@@ -43,6 +43,7 @@ function NewLogPage() {
 
   const [form, setForm] = useState({
     gardenId: search.gardenId ?? "",
+    taskTitle: "",
     type: "Tưới nước" as ActivityType,
     date: new Date().toISOString().slice(0, 10),
     note: "",
@@ -55,16 +56,36 @@ function NewLogPage() {
       toast.error("Vui lòng chọn khu vườn.");
       return;
     }
+    if (!form.taskTitle.trim()) {
+      toast.error("Vui lòng nhập tên công việc.");
+      return;
+    }
     try {
+      // Create a garden task for task management
+      await actions.addGardenTask({
+        gardenId: form.gardenId,
+        title: form.taskTitle.trim(),
+        description: "",
+        category: form.type,
+        priority: "Medium",
+        status: "Todo",
+        dueDate: form.date,
+        reminderAt: null,
+        notes: form.note.trim(),
+      } as any as GardenTaskInput);
+
+      // Also create an activity log to keep cost/history linked to the task
       await actions.addLog({
         gardenId: form.gardenId,
         type: form.type,
         date: form.date,
-        note: form.note.trim(),
+        note: `${form.taskTitle.trim()}${form.note ? ' — ' + form.note.trim() : ''}`,
         cost: Number(form.cost) || 0,
       });
-      toast.success("Đã lưu nhật ký hoạt động!");
-      router.navigate({ to: "/logs" });
+
+      toast.success("Đã lưu công việc!");
+      // Navigate to the garden's tasks (Task History for that garden)
+      router.navigate({ to: "/gardens/$gardenId/tasks", params: { gardenId: form.gardenId } });
     } catch (err) {
       toast.error("Không thể lưu: " + (err as Error).message);
     }
@@ -82,9 +103,9 @@ function NewLogPage() {
         >
           <ArrowLeft /> Quay lại
         </Button>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">Ghi nhật ký hoạt động</h1>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight">Thêm công việc</h1>
         <p className="mt-1 text-muted-foreground">
-          Lưu lại công việc bạn đã thực hiện trên khu vườn.
+          Thêm công việc đơn giản: chọn khu vườn, tên công việc, loại, ngày, chi phí và ghi chú.
         </p>
       </div>
 
@@ -92,9 +113,9 @@ function NewLogPage() {
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
             <Sprout className="h-10 w-10 text-primary" />
-            <p className="mt-3 font-medium">Chưa có khu vườn nào để ghi nhật ký</p>
+            <p className="mt-3 font-medium">Chưa có khu vườn nào để thêm công việc</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Hãy thêm một khu vườn trước khi ghi nhật ký hoạt động.
+              Hãy thêm một khu vườn trước khi tạo công việc.
             </p>
             <Button asChild className="mt-5 gradient-primary text-primary-foreground">
               <Link to="/gardens">Thêm khu vườn</Link>
@@ -105,7 +126,7 @@ function NewLogPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <NotebookPen className="h-5 w-5 text-primary" /> Thông tin hoạt động
+              <NotebookPen className="h-5 w-5 text-primary" /> Thông tin công việc
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -131,7 +152,15 @@ function NewLogPage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <Label>Loại hoạt động *</Label>
+                  <Label>Tên công việc *</Label>
+                  <Input
+                    value={form.taskTitle}
+                    onChange={(e) => setForm({ ...form, taskTitle: e.target.value })}
+                    placeholder="Ví dụ: Tưới sáng, Phun thuốc"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Loại *</Label>
                   <Select
                     value={form.type}
                     onValueChange={(v) => setForm({ ...form, type: v as ActivityType })}
@@ -148,8 +177,11 @@ function NewLogPage() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <Label htmlFor="date">Ngày thực hiện</Label>
+                  <Label htmlFor="date">Ngày</Label>
                   <Input
                     id="date"
                     type="date"
@@ -157,29 +189,28 @@ function NewLogPage() {
                     onChange={(e) => setForm({ ...form, date: e.target.value })}
                   />
                 </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="cost">Chi phí (VNĐ)</Label>
+                  <Input
+                    id="cost"
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={form.cost}
+                    onChange={(e) => setForm({ ...form, cost: e.target.value })}
+                    placeholder="Ví dụ: 500000"
+                  />
+                </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="cost">Chi phí (VNĐ)</Label>
-                <Input
-                  id="cost"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={form.cost}
-                  onChange={(e) => setForm({ ...form, cost: e.target.value })}
-                  placeholder="Ví dụ: 500000"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="note">Chi tiết</Label>
+                <Label htmlFor="note">Ghi chú</Label>
                 <Textarea
                   id="note"
                   rows={4}
                   value={form.note}
                   onChange={(e) => setForm({ ...form, note: e.target.value })}
-                  placeholder="Mô tả chi tiết: lượng nước, loại phân, quan sát sâu bệnh..."
+                  placeholder="Mô tả ngắn: lượng nước, loại phân, quan sát sâu bệnh..."
                 />
               </div>
 
@@ -188,7 +219,7 @@ function NewLogPage() {
                   <Link to="/logs">Huỷ</Link>
                 </Button>
                 <Button type="submit" className="gradient-primary text-primary-foreground">
-                  Lưu nhật ký
+                  Lưu công việc
                 </Button>
               </div>
             </form>

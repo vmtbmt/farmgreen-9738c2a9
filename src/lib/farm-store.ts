@@ -5,15 +5,17 @@ export type { Garden, GardenInput } from "@/lib/garden.types";
 import type { Garden, GardenInput } from "@/lib/garden.types";
 
 export type ActivityType =
-  "Tưới nước" | "Bón phân" | "Phun thuốc" | "Gieo trồng" | "Thu hoạch" | "Làm cỏ" | "Khác";
+  "Tưới nước" | "Bón phân" | "Phun thuốc" | "Làm cỏ" | "Tỉa cành" | "Thu hoạch" | "Gieo trồng" | "Kiểm tra sâu bệnh" | "Khác";
 
 export const ACTIVITY_TYPES: ActivityType[] = [
   "Tưới nước",
   "Bón phân",
   "Phun thuốc",
-  "Gieo trồng",
-  "Thu hoạch",
   "Làm cỏ",
+  "Tỉa cành",
+  "Thu hoạch",
+  "Gieo trồng",
+  "Kiểm tra sâu bệnh",
   "Khác",
 ];
 

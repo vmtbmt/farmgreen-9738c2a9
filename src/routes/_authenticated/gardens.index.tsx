@@ -56,7 +56,7 @@ function GardensPage() {
             </div>
             <h2 className="mt-4 text-lg font-semibold">Chưa có khu vườn nào</h2>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Thêm khu vườn đầu tiên để bắt đầu quản lý và ghi nhật ký hoạt động.
+              Thêm khu vườn đầu tiên để bắt đầu quản lý và theo dõi công việc.
             </p>
             <Button
               onClick={() => setIsCreateOpen(true)}

@@ -153,7 +153,7 @@ export function GardenDetailPage() {
               </Button>
               <Button asChild className="gradient-primary text-primary-foreground">
                 <Link to="/logs/new" search={{ gardenId }}>
-                  <NotebookPen /> Ghi nhật ký
+                  <NotebookPen /> Thêm công việc
                 </Link>
               </Button>
             </div>
@@ -199,12 +199,12 @@ export function GardenDetailPage() {
           <CardContent className="grid gap-3 sm:grid-cols-3">
             <Button asChild className="gradient-primary text-primary-foreground">
               <Link to="/logs/new" search={{ gardenId }}>
-                <NotebookPen /> Ghi nhật ký
+                <NotebookPen /> Thêm công việc
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/gardens/$gardenId/logs" params={{ gardenId }}>
-                <ClipboardList /> Xem nhật ký
+              <Link to="/gardens/$gardenId/tasks" params={{ gardenId }}>
+                              <ClipboardList /> Xem công việc
               </Link>
             </Button>
             <Button variant="outline" onClick={() => setIsEditOpen(true)}>
@@ -279,7 +279,7 @@ export function GardenDetailPage() {
               Hoạt động gần đây
             </CardTitle>
             <Button asChild size="sm" variant="ghost">
-              <Link to="/gardens/$gardenId/logs" params={{ gardenId }}>
+                          <Link to="/gardens/$gardenId/tasks" params={{ gardenId }}>
                 Xem tất cả
               </Link>
             </Button>
@@ -292,7 +292,7 @@ export function GardenDetailPage() {
                 </p>
                 <Button asChild className="mt-4" size="sm">
                   <Link to="/logs/new" search={{ gardenId }}>
-                    Ghi nhật ký đầu tiên
+                    Thêm công việc đầu tiên
                   </Link>
                 </Button>
               </div>

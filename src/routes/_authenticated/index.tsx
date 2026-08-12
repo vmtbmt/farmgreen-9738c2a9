@@ -103,7 +103,7 @@ function Dashboard() {
         const reasons: string[] = [];
         if (overdue > 0) reasons.push(`${overdue} việc quá hạn`);
         if (dueToday > 0) reasons.push(`${dueToday} việc đến hạn hôm nay`);
-        if (daysSince === null) reasons.push("chưa có nhật ký");
+        if (daysSince === null) reasons.push("chưa có ghi nhận");
         else if (daysSince >= 14) reasons.push(`${daysSince} ngày chưa cập nhật`);
         const score = overdue * 100 + dueToday * 10 + (daysSince === null ? 5 : daysSince >= 14 ? 3 : 0);
         return { garden: g, reasons, score, level: overdue > 0 ? "high" : "medium" };
@@ -245,7 +245,7 @@ function Dashboard() {
         ? `Hôm nay có ${stats.tasksToday.length} việc đến hạn.`
         : gardens.length === 0
           ? "Thêm khu vườn đầu tiên để bắt đầu theo dõi."
-          : "Không có việc quá hạn. Kiểm tra vườn và ghi nhật ký nhé.";
+          : "Không có việc quá hạn. Kiểm tra vườn và thêm công việc nhé.";
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 overflow-x-hidden p-4 sm:p-6">
@@ -264,7 +264,7 @@ function Dashboard() {
           <Button asChild size="lg" className="rounded-3xl bg-emerald-600 px-5 py-3 text-white shadow-md hover:bg-emerald-700">
             <Link to="/logs/new" className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
-              Ghi nhật ký nhanh
+                          Thêm công việc nhanh
             </Link>
           </Button>
         </div>
@@ -377,7 +377,7 @@ function Dashboard() {
         <StatCard
           label="Chi phí tháng"
           value={currency(stats.monthlyCost)}
-          hint="Từ nhật ký hoạt động"
+          hint="Từ ghi nhận hoạt động"
           icon={<Wallet className="h-5 w-5" />}
         />
       </div>

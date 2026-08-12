@@ -33,7 +33,7 @@ export function TodayTasks() {
       if (!last) {
         result.push({
           id: `new-${g.id}`,
-          label: `Khu ${g.name} chưa có nhật ký — ghi hoạt động đầu tiên`,
+          label: `Khu ${g.name} chưa có công việc — thêm công việc đầu tiên`,
           kind: "warn",
         });
         continue;

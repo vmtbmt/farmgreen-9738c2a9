@@ -96,7 +96,7 @@ export function GardenCard({
 
           <div className="rounded-lg border bg-muted/40 p-3">
             <div className="flex items-center gap-2 text-xs font-medium text-foreground">
-              <NotebookPen className="h-4 w-4 text-primary" /> Nhật ký gần nhất
+              <NotebookPen className="h-4 w-4 text-primary" /> Hoạt động gần nhất
             </div>
             {latest ? (
               <div className="mt-2">
@@ -109,19 +109,19 @@ export function GardenCard({
                 </p>
               </div>
             ) : (
-              <p className="mt-2 text-xs">Chưa có nhật ký nào cho khu vườn này.</p>
+              <p className="mt-2 text-xs">Chưa có hoạt động nào cho khu vườn này.</p>
             )}
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2">
             <Button asChild variant="outline" size="sm" className="justify-start">
               <Link to="/logs/new" search={{ gardenId: garden.id }}>
-                <NotebookPen /> Ghi nhật ký
+                              <NotebookPen /> Thêm công việc
               </Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="justify-start">
-              <Link to="/gardens/$gardenId/logs" params={{ gardenId: garden.id }}>
-                <BookOpen /> Xem lịch sử
+              <Link to="/gardens/$gardenId/tasks" params={{ gardenId: garden.id }}>
+                              <BookOpen /> Xem công việc
               </Link>
             </Button>
             <Button

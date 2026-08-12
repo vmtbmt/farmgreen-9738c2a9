@@ -18,10 +18,10 @@ import { ACTIVITY_TYPES, useFarmActions, useFarmStore } from "@/lib/farm-store";
 export const Route = createFileRoute("/_authenticated/logs/")({
   head: () => ({
     meta: [
-      { title: "Lịch sử hoạt động — Nông Trại Xanh" },
-      { name: "description", content: "Xem lịch sử toàn bộ hoạt động trên nông trại." },
-      { property: "og:title", content: "Lịch sử hoạt động — Nông Trại Xanh" },
-      { property: "og:description", content: "Toàn bộ nhật ký chăm sóc nông trại." },
+      { title: "Lịch sử công việc — Nông Trại Xanh" },
+      { name: "description", content: "Xem lịch sử công việc và hoạt động trên nông trại." },
+      { property: "og:title", content: "Lịch sử công việc — Nông Trại Xanh" },
+      { property: "og:description", content: "Toàn bộ lịch sử công việc và ghi nhận chi phí." },
     ],
   }),
   component: LogsPage,
@@ -56,14 +56,14 @@ function LogsPage() {
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Lịch sử hoạt động</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Lịch sử công việc</h1>
           <p className="mt-1 text-muted-foreground">
-            Toàn bộ nhật ký chăm sóc và canh tác trên nông trại.
+                      Toàn bộ lịch sử công việc và ghi nhận hoạt động trên nông trại.
           </p>
         </div>
         <Button asChild className="gradient-primary text-primary-foreground">
           <Link to="/logs/new">
-            <Plus /> Ghi nhật ký
+                    <Plus /> Thêm công việc
           </Link>
         </Button>
       </div>
@@ -111,13 +111,13 @@ function LogsPage() {
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary text-primary-foreground">
               <NotebookPen className="h-7 w-7" />
             </div>
-            <h3 className="mt-4 text-lg font-semibold">Chưa có nhật ký nào</h3>
+            <h3 className="mt-4 text-lg font-semibold">Chưa có công việc nào</h3>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Hãy ghi lại các hoạt động chăm sóc để theo dõi tiến độ canh tác.
+                          Hãy thêm các công việc để theo dõi tiến độ canh tác.
             </p>
             <Button asChild className="mt-6 gradient-primary text-primary-foreground">
               <Link to="/logs/new">
-                <Plus /> Ghi nhật ký đầu tiên
+                            <Plus /> Thêm công việc đầu tiên
               </Link>
             </Button>
           </CardContent>
@@ -169,7 +169,7 @@ function LogsPage() {
                             onClick={async () => {
                               try {
                                 await actions.deleteLog(l.id);
-                                toast.success("Đã xoá nhật ký.");
+                                toast.success("Đã xoá bản ghi.");
                               } catch (err) {
                                 toast.error("Không thể xoá: " + (err as Error).message);
                               }

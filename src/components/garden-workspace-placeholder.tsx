@@ -11,7 +11,7 @@ export function GardenWorkspacePlaceholder({
   title,
 }: {
   gardenId: string;
-  tab: "journal" | "expenses" | "photos";
+  tab: "logs" | "expenses" | "photos";
   title: string;
 }) {
   const { gardens, logs } = useFarmStore();
@@ -35,7 +35,7 @@ export function GardenWorkspacePlaceholder({
       </h1>
       <Card>
         <CardContent className="p-5">
-          {tab === "journal" ? (
+          {tab === "logs" ? (
             entries.length ? (
               entries.map((e) => (
                 <div key={e.id} className="border-b py-3">
@@ -44,7 +44,7 @@ export function GardenWorkspacePlaceholder({
                 </div>
               ))
             ) : (
-              <Empty gardenId={gardenId} label="Chưa có nhật ký" />
+              <Empty gardenId={gardenId} label="Chưa có công việc" />
             )
           ) : tab === "expenses" ? (
             <>
@@ -68,7 +68,7 @@ function Empty({ gardenId, label }: { gardenId: string; label: string }) {
       <p className="text-muted-foreground">{label}</p>
       <Button asChild className="mt-4" size="sm">
         <Link to="/logs/new" search={{ gardenId }}>
-          <Plus /> Ghi nhật ký
+          <Plus /> Thêm công việc
         </Link>
       </Button>
     </div>

@@ -21,10 +21,10 @@ const FILTER_TYPES = ["Bón phân", "Tưới nước", "Phun thuốc", "Thu ho�
 export const Route = createFileRoute("/_authenticated/gardens/$gardenId/logs")({
   head: () => ({
     meta: [
-      { title: "Lịch sử nhật ký khu vườn — Nông Trại Xanh" },
-      { name: "description", content: "Xem lịch sử nhật ký hoạt động của khu vườn." },
-      { property: "og:title", content: "Lịch sử nhật ký khu vườn — Nông Trại Xanh" },
-      { property: "og:description", content: "Timeline hoạt động chi tiết theo từng khu vườn." },
+      { title: "Lịch sử công việc khu vườn — Nông Trại Xanh" },
+            { name: "description", content: "Xem lịch sử công việc và hoạt động của khu vườn." },
+            { property: "og:title", content: "Lịch sử công việc khu vườn — Nông Trại Xanh" },
+            { property: "og:description", content: "Timeline công việc và ghi nhận chi phí theo từng khu vườn." }
     ],
   }),
   component: GardenLogsPage,
@@ -80,7 +80,7 @@ function GardenLogsPage() {
 
       <div className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          Lịch sử nhật ký{garden ? ` — ${garden.name}` : ""}
+                  Lịch sử công việc{garden ? ` — ${garden.name}` : ""}
         </h1>
         {garden && (
           <p className="text-sm text-muted-foreground">
@@ -97,7 +97,7 @@ function GardenLogsPage() {
               <NotebookPen className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <div className="text-xs text-muted-foreground">Tổng số nhật ký</div>
+              <div className="text-xs text-muted-foreground">Tổng công việc</div>
               <div className="text-xl font-semibold">{gardenLogs.length}</div>
             </div>
           </CardContent>
@@ -157,13 +157,13 @@ function GardenLogsPage() {
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
             <NotebookPen className="h-8 w-8 text-muted-foreground" />
-            <h3 className="mt-3 text-base font-semibold">Chưa có nhật ký nào</h3>
+            <h3 className="mt-3 text-base font-semibold">Chưa có công việc nào</h3>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Ghi nhật ký để bắt đầu theo dõi hoạt động của khu vườn này.
+                          Thêm công việc để bắt đầu theo dõi tiến độ khu vườn này.
             </p>
             <Button asChild className="mt-5 gradient-primary text-primary-foreground">
               <Link to="/logs/new" search={{ gardenId }}>
-                Ghi nhật ký
+                            Thêm công việc
               </Link>
             </Button>
           </CardContent>
