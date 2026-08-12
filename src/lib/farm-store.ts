@@ -260,8 +260,39 @@ export function useFarmActions() {
         })
         .eq("id", id);
       if (error) throw error;
-      await qc.invalidateQueries({ queryKey: ["garden_tasks", input.gardenId] });
+
+      // If task was completed, also create an activity log so it appears in "Lịch sử công việc"
+      if (input.status === "Completed") {
+        try {
+          const { data: userRes } = await supabase.auth.getUser();
+          const user_id = userRes.user?.id;
+          if (user_id) {
+            const note = `Hoàn thành công việc: ${input.title}`;
+            const { error: logErr } = await supabase.from("activity_logs").insert({
+              user_id,
+              garden_id: input.gardenId,
+              type: "Khác",
+              date: new Date().toISOString().slice(0, 10),
+              note,
+              cost: 0,
+            });
+            if (logErr) {
+              // don't throw — logging failure shouldn't block the task update
+              console.warn("Failed to create completion activity log:", logErr.message);
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to create completion activity log:", (e as Error).message);
+        }
+      }
+
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["garden_tasks", input.gardenId] }),
+        qc.invalidateQueries({ queryKey: ["garden_tasks", "all"] }),
+        qc.invalidateQueries({ queryKey: ["logs"] }),
+      ]);
     },
+
     async archiveGardenTask(id: string, gardenId: string) {
       const { error } = await supabase
         .from("garden_tasks")
