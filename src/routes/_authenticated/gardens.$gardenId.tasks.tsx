@@ -98,6 +98,20 @@ function TasksPage() {
     setBusyId(task.id);
     try {
       await actions.updateGardenTask(task.id, { ...task, status: "Completed" });
+
+      // Also create a logs entry explicitly so the "Lịch sử công việc" view updates
+      try {
+        await actions.addLog({
+          gardenId: task.gardenId,
+          type: "Khác",
+          date: new Date().toISOString().slice(0, 10),
+          note: `Hoàn thành công việc: ${task.title}`,
+        });
+      } catch (e) {
+        // non-fatal — the update already happened; log for debugging
+        console.warn("Failed to create completion log from UI:", (e as Error).message);
+      }
+
       toast.success("Đã đánh dấu hoàn thành.");
     } catch (error) {
       toast.error(`Không thể cập nhật: ${(error as Error).message}`);
