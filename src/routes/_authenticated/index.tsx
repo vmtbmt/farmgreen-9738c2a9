@@ -26,8 +26,6 @@ import { useFarmStore, useAllGardenTasks } from "@/lib/farm-store";
 import { supabase } from "@/integrations/supabase/client";
 import { isTaskOpen, isOverdue } from "@/lib/garden-task-utils";
 import { DashboardAI } from "@/components/dashboard-ai";
-import { WeatherCard } from "@/components/weather-card";
-import { useWeather } from "@/lib/use-weather";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -113,19 +111,6 @@ function Dashboard() {
       .slice(0, 4);
   }, [gardens, allTasks, logs, todayKey]);
 
-  const weatherWarning = useMemo(() => {
-    if (!weather) return null;
-    const next24 = weather.hourly.slice(0, 24);
-    const totalRain = next24.reduce((s, h) => s + (h.rainfall || 0), 0);
-    const maxProb = next24.reduce((m, h) => Math.max(m, h.precipProbability || 0), 0);
-    if (totalRain >= 15) {
-      return `Mưa lớn trong 24 giờ tới, dự kiến ${totalRain.toFixed(1)} mm.`;
-    }
-    if (maxProb >= 70) {
-      return `Khả năng mưa cao ${maxProb}%. Hoãn phun thuốc.`;
-    }
-    return "Thời tiết ổn định, thuận lợi cho công việc ngoài trời.";
-  }, [weather]);
 
   const alertCards = useMemo(
     () => {
@@ -160,18 +145,9 @@ function Dashboard() {
         });
       }
 
-      cards.push({
-        title: "Dự báo thời tiết",
-        description: weatherWarning ?? "Chưa có dữ liệu thời tiết.",
-        tag: "Thời tiết",
-        icon: <Sun className="h-5 w-5 text-sky-600" />,
-        to: "/weather",
-        variant: "info",
-      });
-
       return cards.slice(0, 3);
     },
-    [attention, weatherWarning],
+    [attention],
   );
 
   const recentLogs = logs.slice(0, 8);
@@ -270,21 +246,7 @@ function Dashboard() {
         </div>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
-        <div className="space-y-4">
-          <div className="rounded-3xl border border-border bg-white/95 p-5 shadow-sm">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                  <p className="text-sm font-semibold text-slate-900">Thời tiết Đắk Lắk</p>
-                </div>
-              <Button asChild variant="outline" size="sm" className="rounded-full px-4 py-2">
-                <Link to="/weather">Xem chi tiết</Link>
-              </Button>
-            </div>
-          </div>
-          <WeatherCard />
-        </div>
-
+      <div className="grid gap-4 lg:grid-cols-1">
         <Card className="h-full rounded-3xl border border-border bg-white/95 shadow-sm">
           <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-5">
             <div>
