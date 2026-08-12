@@ -271,7 +271,8 @@ export function useFarmActions() {
             const { error: logErr } = await supabase.from("activity_logs").insert({
               user_id,
               garden_id: input.gardenId,
-              type: "Khác",
+              // Use the task title as the activity title so the Logs timeline shows the task name
+              type: input.title as any,
               date: new Date().toISOString().slice(0, 10),
               note,
               cost: 0,

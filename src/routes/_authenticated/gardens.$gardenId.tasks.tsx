@@ -103,7 +103,8 @@ function TasksPage() {
       try {
         await actions.addLog({
           gardenId: task.gardenId,
-          type: "Khác",
+          // Use the task title so the timeline shows the actual work name instead of a generic type
+          type: (task.title as unknown) as any,
           date: new Date().toISOString().slice(0, 10),
           note: `Hoàn thành công việc: ${task.title}`,
         });
