@@ -238,8 +238,12 @@ export function useFarmActions() {
         notes: input.notes,
       });
       if (error) throw error;
-      await qc.invalidateQueries({ queryKey: ["garden_tasks", input.gardenId] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["garden_tasks", input.gardenId] }),
+        qc.invalidateQueries({ queryKey: ["garden_tasks", "all"] }),
+      ]);
     },
+
     async updateGardenTask(id: string, input: GardenTaskInput) {
       const { error } = await supabase
         .from("garden_tasks")

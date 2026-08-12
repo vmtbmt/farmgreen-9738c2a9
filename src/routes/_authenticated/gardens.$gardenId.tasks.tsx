@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ArrowLeft, Check, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,7 +34,7 @@ import {
   type GardenTask,
   type GardenTaskInput,
   useFarmActions,
-  useGardenTasks,
+  useGardenTasks, useFarmStore,
 } from "@/lib/farm-store";
 import {
   CATEGORY_LABELS,
@@ -64,6 +64,14 @@ function TasksPage() {
   const [sort, setSort] = useState("default");
   const [edit, setEdit] = useState<GardenTask | undefined>();
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const routeSearch = Route.useSearch();
+  // Open create modal when ?create=1 is present
+  useEffect(() => {
+    if ((routeSearch as any)?.create && !edit) {
+      setEdit({} as GardenTask);
+    }
+  }, [(routeSearch as any)?.create]);
 
   const all = useMemo(() => query.data ?? [], [query.data]);
   const stats = summarizeTasks(all);
@@ -290,6 +298,7 @@ function StatBox({ label, value, danger }: { label: string; value: number; dange
 }
 
 type TaskForm = {
+  gardenId: string;
   title: string;
   description: string;
   category: string;
@@ -298,6 +307,7 @@ type TaskForm = {
   dueDate: string;
   reminderAt: string | null;
   notes: string;
+  cost?: string;
 };
 
 function TaskDialog({
@@ -310,24 +320,28 @@ function TaskDialog({
   onClose: () => void;
 }) {
   const actions = useFarmActions();
+  const { gardens } = useFarmStore();
   const [saving, setSaving] = useState(false);
   const [f, setF] = useState<TaskForm>(() => ({
+    gardenId: task?.gardenId ?? gardenId ?? "",
     title: task?.title ?? "",
     description: task?.description ?? "",
-    category: task?.category ?? "Other",
+    category: task?.category ?? TASK_CATEGORIES[0],
     priority: task?.priority ?? "Medium",
     status: task?.status ?? "Todo",
     dueDate: task?.dueDate ?? "",
     reminderAt: task?.reminderAt ?? null,
     notes: task?.notes ?? "",
+    cost: "",
   }));
   if (!task) return null;
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!f.title.trim()) return toast.error("Vui lòng nhập tiêu đề công việc.");
+    if (!f.gardenId) return toast.error("Vui lòng chọn khu vườn.");
+    if (!f.title.trim()) return toast.error("Vui lòng nhập tên công việc.");
     const input: GardenTaskInput = {
-      gardenId,
+      gardenId: f.gardenId,
       title: f.title.trim(),
       description: f.description,
       category: f.category,
@@ -358,7 +372,23 @@ function TaskDialog({
         </DialogHeader>
         <form onSubmit={save} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="task-title">Tiêu đề *</Label>
+            <Label>Khu vườn *</Label>
+            <Select value={f.gardenId} onValueChange={(v) => setF({ ...f, gardenId: v })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn khu vườn" />
+              </SelectTrigger>
+              <SelectContent>
+                {gardens.map((g) => (
+                  <SelectItem key={g.id} value={g.id}>
+                    {g.name} — {g.crop}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="task-title">Tên công việc *</Label>
             <Input
               id="task-title"
               value={f.title}
@@ -366,8 +396,9 @@ function TaskDialog({
               placeholder="Ví dụ: Bón phân đợt 2"
             />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="task-desc">Mô tả</Label>
+            <Label htmlFor="task-desc">Ghi chú / mô tả</Label>
             <Textarea
               id="task-desc"
               value={f.description}
@@ -375,6 +406,7 @@ function TaskDialog({
               placeholder="Mô tả chi tiết công việc"
             />
           </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Loại công việc</Label>
@@ -431,15 +463,31 @@ function TaskDialog({
               />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="task-notes">Ghi chú</Label>
-            <Textarea
-              id="task-notes"
-              value={f.notes}
-              onChange={(e) => setF({ ...f, notes: e.target.value })}
-              placeholder="Ghi chú thêm"
-            />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="task-cost">Chi phí (VNĐ)</Label>
+              <Input
+                id="task-cost"
+                type="number"
+                min="0"
+                step="1000"
+                value={f.cost}
+                onChange={(e) => setF({ ...f, cost: e.target.value })}
+                placeholder="Ví dụ: 500000"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="task-notes">Ghi chú thêm</Label>
+              <Textarea
+                id="task-notes"
+                value={f.notes}
+                onChange={(e) => setF({ ...f, notes: e.target.value })}
+                placeholder="Ghi chú thêm"
+              />
+            </div>
           </div>
+
           <Button
             type="submit"
             size="lg"
