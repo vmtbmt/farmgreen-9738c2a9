@@ -19,9 +19,11 @@ export type Database = {
           cost: number
           created_at: string
           date: string
+          expense_category: string
           garden_id: string
           id: string
           note: string
+          task_id: string | null
           type: string
           updated_at: string
           user_id: string
@@ -30,9 +32,11 @@ export type Database = {
           cost?: number
           created_at?: string
           date: string
+          expense_category?: string
           garden_id: string
           id?: string
           note?: string
+          task_id?: string | null
           type: string
           updated_at?: string
           user_id: string
@@ -41,9 +45,11 @@ export type Database = {
           cost?: number
           created_at?: string
           date?: string
+          expense_category?: string
           garden_id?: string
           id?: string
           note?: string
+          task_id?: string | null
           type?: string
           updated_at?: string
           user_id?: string
@@ -54,6 +60,13 @@ export type Database = {
             columns: ["garden_id"]
             isOneToOne: false
             referencedRelation: "gardens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "garden_tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -149,9 +162,11 @@ export type Database = {
           archived_at: string | null
           category: string
           completed_at: string | null
+          cost: number
           created_at: string
           description: string
           due_date: string | null
+          expense_category: string
           garden_id: string
           id: string
           notes: string
@@ -166,9 +181,11 @@ export type Database = {
           archived_at?: string | null
           category?: string
           completed_at?: string | null
+          cost?: number
           created_at?: string
           description?: string
           due_date?: string | null
+          expense_category?: string
           garden_id: string
           id?: string
           notes?: string
@@ -183,9 +200,11 @@ export type Database = {
           archived_at?: string | null
           category?: string
           completed_at?: string | null
+          cost?: number
           created_at?: string
           description?: string
           due_date?: string | null
+          expense_category?: string
           garden_id?: string
           id?: string
           notes?: string
