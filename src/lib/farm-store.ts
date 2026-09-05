@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { gardenRepository } from "@/lib/garden.repository";
+import { activityFromCategory, categoryFromActivity } from "@/lib/expense-utils";
 export type { Garden, GardenInput } from "@/lib/garden.types";
 import type { Garden, GardenInput } from "@/lib/garden.types";
 
@@ -24,7 +25,17 @@ export type ActivityLog = {
   date: string;
   note: string;
   cost: number;
+  expenseCategory: string;
+  taskId: string | null;
   createdAt: string;
+};
+
+export type ExpenseInput = {
+  gardenId: string;
+  expenseCategory: string;
+  date: string;
+  cost: number;
+  note: string;
 };
 
 export type DiseaseCheck = {
@@ -49,6 +60,8 @@ export type GardenTask = {
   dueDate: string | null;
   reminderAt: string | null;
   notes: string;
+  cost: number;
+  expenseCategory: string;
   completedAt: string | null;
   archivedAt: string | null;
   createdAt: string;
@@ -62,6 +75,8 @@ type LogRow = {
   date: string;
   note: string;
   cost: number | string | null;
+  expense_category: string | null;
+  task_id: string | null;
   created_at: string;
 };
 type DiseaseRow = {
@@ -83,6 +98,8 @@ const mapLog = (r: LogRow): ActivityLog => ({
   date: r.date,
   note: r.note ?? "",
   cost: Number(r.cost || 0),
+  expenseCategory: r.expense_category ?? "Khác",
+  taskId: r.task_id ?? null,
   createdAt: r.created_at,
 });
 
@@ -136,6 +153,8 @@ async function fetchGardenTasks(gardenId: string): Promise<GardenTask[]> {
     dueDate: row.due_date,
     reminderAt: row.reminder_at,
     notes: row.notes ?? "",
+    cost: Number(row.cost || 0),
+    expenseCategory: row.expense_category ?? "Khác",
     completedAt: row.completed_at,
     archivedAt: row.archived_at,
     createdAt: row.created_at,
@@ -163,6 +182,8 @@ async function fetchAllGardenTasks(): Promise<GardenTask[]> {
     dueDate: row.due_date,
     reminderAt: row.reminder_at,
     notes: row.notes ?? "",
+    cost: Number(row.cost || 0),
+    expenseCategory: row.expense_category ?? "Khác",
     completedAt: row.completed_at,
     archivedAt: row.archived_at,
     createdAt: row.created_at,
@@ -186,6 +207,39 @@ export function useFarmStore() {
 
 export function useDiseaseChecks() {
   return useQuery({ queryKey: ["disease_checks"], queryFn: fetchDiseaseChecks });
+}
+
+/** Ghi/cập nhật khoản chi gắn với công việc. Chi phí = 0 thì gỡ khoản chi đó. */
+async function syncTaskExpense(taskId: string, input: GardenTaskInput, userId: string) {
+  const cost = Number(input.cost || 0);
+  const category = input.expenseCategory || "Khác";
+  const { data: existing, error: findError } = await supabase
+    .from("activity_logs")
+    .select("id")
+    .eq("task_id", taskId)
+    .maybeSingle();
+  if (findError) throw findError;
+
+  if (cost <= 0) {
+    if (existing) {
+      const { error } = await supabase.from("activity_logs").delete().eq("id", existing.id);
+      if (error) throw error;
+    }
+    return;
+  }
+
+  const payload = {
+    garden_id: input.gardenId,
+    type: activityFromCategory(category),
+    date: input.dueDate ?? new Date().toISOString().slice(0, 10),
+    note: input.title,
+    cost,
+    expense_category: category,
+  };
+  const { error } = existing
+    ? await supabase.from("activity_logs").update(payload).eq("id", existing.id)
+    : await supabase.from("activity_logs").insert({ ...payload, user_id: userId, task_id: taskId });
+  if (error) throw error;
 }
 
 export function useFarmActions() {
@@ -223,22 +277,34 @@ export function useFarmActions() {
     async addGardenTask(input: GardenTaskInput) {
       const { data } = await supabase.auth.getUser();
       if (!data.user) throw new Error("Chưa đăng nhập");
-      const { error } = await supabase.from("garden_tasks").insert({
-        user_id: data.user.id,
-        garden_id: input.gardenId,
-        title: input.title,
-        description: input.description,
-        category: input.category,
-        priority: input.priority,
-        status: input.status,
-        due_date: input.dueDate,
-        reminder_at: input.reminderAt,
-        notes: input.notes,
-      });
+      const { data: row, error } = await supabase
+        .from("garden_tasks")
+        .insert({
+          user_id: data.user.id,
+          garden_id: input.gardenId,
+          title: input.title,
+          description: input.description,
+          category: input.category,
+          priority: input.priority,
+          status: input.status,
+          due_date: input.dueDate,
+          reminder_at: input.reminderAt,
+          notes: input.notes,
+          cost: input.cost ?? 0,
+          expense_category: input.expenseCategory || "Khác",
+        })
+        .select("id")
+        .single();
       if (error) throw error;
-      await qc.invalidateQueries({ queryKey: ["garden_tasks", input.gardenId] });
+      await syncTaskExpense(row.id, input, data.user.id);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["garden_tasks"] }),
+        qc.invalidateQueries({ queryKey: ["logs"] }),
+      ]);
     },
     async updateGardenTask(id: string, input: GardenTaskInput) {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) throw new Error("Chưa đăng nhập");
       const { error } = await supabase
         .from("garden_tasks")
         .update({
@@ -250,11 +316,17 @@ export function useFarmActions() {
           due_date: input.dueDate,
           reminder_at: input.reminderAt,
           notes: input.notes,
+          cost: input.cost ?? 0,
+          expense_category: input.expenseCategory || "Khác",
           completed_at: input.status === "Completed" ? new Date().toISOString() : null,
         })
         .eq("id", id);
       if (error) throw error;
-      await qc.invalidateQueries({ queryKey: ["garden_tasks", input.gardenId] });
+      await syncTaskExpense(id, input, data.user.id);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["garden_tasks"] }),
+        qc.invalidateQueries({ queryKey: ["logs"] }),
+      ]);
     },
     async archiveGardenTask(id: string, gardenId: string) {
       const { error } = await supabase
@@ -264,12 +336,20 @@ export function useFarmActions() {
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["garden_tasks", gardenId] });
     },
-    async deleteGardenTask(id: string, gardenId: string) {
+    async deleteGardenTask(id: string, _gardenId?: string) {
       const { error } = await supabase.from("garden_tasks").delete().eq("id", id);
       if (error) throw error;
-      await qc.invalidateQueries({ queryKey: ["garden_tasks", gardenId] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["garden_tasks"] }),
+        qc.invalidateQueries({ queryKey: ["logs"] }),
+      ]);
     },
-    async addLog(input: Omit<ActivityLog, "id" | "createdAt" | "cost"> & { cost?: number }) {
+    async addLog(
+      input: Omit<ActivityLog, "id" | "createdAt" | "cost" | "expenseCategory" | "taskId"> & {
+        cost?: number;
+        expenseCategory?: string;
+      },
+    ) {
       const { data: userRes } = await supabase.auth.getUser();
       const user_id = userRes.user?.id;
       if (!user_id) throw new Error("Chưa đăng nhập");
@@ -280,9 +360,57 @@ export function useFarmActions() {
         date: input.date,
         note: input.note,
         cost: input.cost ?? 0,
+        expense_category: input.expenseCategory ?? categoryFromActivity(input.type),
       });
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["logs"] });
+    },
+    async addExpense(input: ExpenseInput) {
+      const { data: userRes } = await supabase.auth.getUser();
+      const user_id = userRes.user?.id;
+      if (!user_id) throw new Error("Chưa đăng nhập");
+      const { error } = await supabase.from("activity_logs").insert({
+        user_id,
+        garden_id: input.gardenId,
+        type: activityFromCategory(input.expenseCategory),
+        date: input.date,
+        note: input.note,
+        cost: input.cost,
+        expense_category: input.expenseCategory,
+      });
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["logs"] });
+    },
+    /** Chỉ cập nhật khoản chi; liên kết công việc (task_id) được giữ nguyên. */
+    async updateExpense(id: string, input: ExpenseInput) {
+      const { error } = await supabase
+        .from("activity_logs")
+        .update({
+          garden_id: input.gardenId,
+          date: input.date,
+          note: input.note,
+          cost: input.cost,
+          expense_category: input.expenseCategory,
+        })
+        .eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["logs"] });
+    },
+    /** Xóa khoản chi. Nếu khoản chi đến từ công việc thì chỉ đưa chi phí công việc về 0. */
+    async deleteExpense(log: ActivityLog) {
+      if (log.taskId) {
+        const { error: taskError } = await supabase
+          .from("garden_tasks")
+          .update({ cost: 0 })
+          .eq("id", log.taskId);
+        if (taskError) throw taskError;
+      }
+      const { error } = await supabase.from("activity_logs").delete().eq("id", log.id);
+      if (error) throw error;
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["logs"] }),
+        qc.invalidateQueries({ queryKey: ["garden_tasks"] }),
+      ]);
     },
     async deleteLog(id: string) {
       const { error } = await supabase.from("activity_logs").delete().eq("id", id);

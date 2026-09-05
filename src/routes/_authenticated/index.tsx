@@ -213,6 +213,8 @@ function Dashboard() {
         description: task.description ?? "",
         category: task.category ?? "Other",
         priority: task.priority ?? "Medium",
+        cost: task.cost ?? 0,
+        expenseCategory: task.expenseCategory ?? "Khác",
         status: newStatus,
         dueDate: task.dueDate ?? null,
         reminderAt: task.reminderAt ?? null,
