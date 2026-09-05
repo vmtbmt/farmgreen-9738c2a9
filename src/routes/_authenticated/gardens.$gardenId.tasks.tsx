@@ -298,6 +298,8 @@ type TaskForm = {
   dueDate: string;
   reminderAt: string | null;
   notes: string;
+  cost: string;
+  expenseCategory: string;
 };
 
 function TaskDialog({
@@ -320,6 +322,8 @@ function TaskDialog({
     dueDate: task?.dueDate ?? "",
     reminderAt: task?.reminderAt ?? null,
     notes: task?.notes ?? "",
+    cost: task?.cost ? String(task.cost) : "",
+    expenseCategory: task?.expenseCategory ?? "Khác",
   }));
   if (!task) return null;
 
@@ -336,6 +340,8 @@ function TaskDialog({
       dueDate: f.dueDate || null,
       reminderAt: f.reminderAt || null,
       notes: f.notes,
+      cost: Number(f.cost) || 0,
+      expenseCategory: f.expenseCategory,
     };
     setSaving(true);
     try {
@@ -374,6 +380,42 @@ function TaskDialog({
               onChange={(e) => setF({ ...f, description: e.target.value })}
               placeholder="Mô tả chi tiết công việc"
             />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="task-cost">Chi phí (VNĐ)</Label>
+              <Input
+                id="task-cost"
+                type="number"
+                min="0"
+                step="1000"
+                inputMode="numeric"
+                value={f.cost}
+                onChange={(e) => setF({ ...f, cost: e.target.value })}
+                placeholder="0"
+              />
+              <p className="text-xs text-muted-foreground">
+                Nhập số tiền lớn hơn 0 sẽ tự động ghi vào mục Chi phí.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>Nhóm chi phí</Label>
+              <Select
+                value={f.expenseCategory}
+                onValueChange={(v) => setF({ ...f, expenseCategory: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {EXPENSE_CATEGORIES.map((x) => (
+                    <SelectItem key={x} value={x}>
+                      {x}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
