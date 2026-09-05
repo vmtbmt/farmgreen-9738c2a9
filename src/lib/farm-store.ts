@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { gardenRepository } from "@/lib/garden.repository";
-import { activityFromCategory } from "@/lib/expense-utils";
+import { activityFromCategory, categoryFromActivity } from "@/lib/expense-utils";
 export type { Garden, GardenInput } from "@/lib/garden.types";
 import type { Garden, GardenInput } from "@/lib/garden.types";
 
@@ -209,6 +209,39 @@ export function useDiseaseChecks() {
   return useQuery({ queryKey: ["disease_checks"], queryFn: fetchDiseaseChecks });
 }
 
+/** Ghi/cập nhật khoản chi gắn với công việc. Chi phí = 0 thì gỡ khoản chi đó. */
+async function syncTaskExpense(taskId: string, input: GardenTaskInput, userId: string) {
+  const cost = Number(input.cost || 0);
+  const category = input.expenseCategory || "Khác";
+  const { data: existing, error: findError } = await supabase
+    .from("activity_logs")
+    .select("id")
+    .eq("task_id", taskId)
+    .maybeSingle();
+  if (findError) throw findError;
+
+  if (cost <= 0) {
+    if (existing) {
+      const { error } = await supabase.from("activity_logs").delete().eq("id", existing.id);
+      if (error) throw error;
+    }
+    return;
+  }
+
+  const payload = {
+    garden_id: input.gardenId,
+    type: activityFromCategory(category),
+    date: input.dueDate ?? new Date().toISOString().slice(0, 10),
+    note: input.title,
+    cost,
+    expense_category: category,
+  };
+  const { error } = existing
+    ? await supabase.from("activity_logs").update(payload).eq("id", existing.id)
+    : await supabase.from("activity_logs").insert({ ...payload, user_id: userId, task_id: taskId });
+  if (error) throw error;
+}
+
 export function useFarmActions() {
   const qc = useQueryClient();
   return {
@@ -303,7 +336,7 @@ export function useFarmActions() {
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["garden_tasks", gardenId] });
     },
-    async deleteGardenTask(id: string) {
+    async deleteGardenTask(id: string, _gardenId?: string) {
       const { error } = await supabase.from("garden_tasks").delete().eq("id", id);
       if (error) throw error;
       await Promise.all([
