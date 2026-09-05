@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { gardenRepository } from "@/lib/garden.repository";
+import { activityFromCategory } from "@/lib/expense-utils";
 export type { Garden, GardenInput } from "@/lib/garden.types";
 import type { Garden, GardenInput } from "@/lib/garden.types";
 
@@ -24,7 +25,17 @@ export type ActivityLog = {
   date: string;
   note: string;
   cost: number;
+  expenseCategory: string;
+  taskId: string | null;
   createdAt: string;
+};
+
+export type ExpenseInput = {
+  gardenId: string;
+  expenseCategory: string;
+  date: string;
+  cost: number;
+  note: string;
 };
 
 export type DiseaseCheck = {
@@ -49,6 +60,8 @@ export type GardenTask = {
   dueDate: string | null;
   reminderAt: string | null;
   notes: string;
+  cost: number;
+  expenseCategory: string;
   completedAt: string | null;
   archivedAt: string | null;
   createdAt: string;
@@ -62,6 +75,8 @@ type LogRow = {
   date: string;
   note: string;
   cost: number | string | null;
+  expense_category: string | null;
+  task_id: string | null;
   created_at: string;
 };
 type DiseaseRow = {
@@ -83,6 +98,8 @@ const mapLog = (r: LogRow): ActivityLog => ({
   date: r.date,
   note: r.note ?? "",
   cost: Number(r.cost || 0),
+  expenseCategory: r.expense_category ?? "Khác",
+  taskId: r.task_id ?? null,
   createdAt: r.created_at,
 });
 
@@ -136,6 +153,8 @@ async function fetchGardenTasks(gardenId: string): Promise<GardenTask[]> {
     dueDate: row.due_date,
     reminderAt: row.reminder_at,
     notes: row.notes ?? "",
+    cost: Number(row.cost || 0),
+    expenseCategory: row.expense_category ?? "Khác",
     completedAt: row.completed_at,
     archivedAt: row.archived_at,
     createdAt: row.created_at,
@@ -163,6 +182,8 @@ async function fetchAllGardenTasks(): Promise<GardenTask[]> {
     dueDate: row.due_date,
     reminderAt: row.reminder_at,
     notes: row.notes ?? "",
+    cost: Number(row.cost || 0),
+    expenseCategory: row.expense_category ?? "Khác",
     completedAt: row.completed_at,
     archivedAt: row.archived_at,
     createdAt: row.created_at,
