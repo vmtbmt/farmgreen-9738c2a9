@@ -4,6 +4,7 @@ import { ArrowLeft, Check, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { GardenWorkspaceTabs } from "@/components/garden-workspace-tabs";
+import { EXPENSE_CATEGORIES } from "@/lib/expense-utils";
 import {
   AlertDialog,
   AlertDialogAction,
