@@ -37,6 +37,7 @@ export function DashboardAI() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
 
   const run = async () => {
     setLoading(true);
@@ -44,6 +45,7 @@ export function DashboardAI() {
     try {
       const res = await analyze();
       setData(res);
+      setLastUpdatedAt(new Date().toISOString());
       setShowDetails(false); // keep collapsed until user asks
     } catch (e) {
       setError(e instanceof Error ? e.message : "Lỗi phân tích");
@@ -141,14 +143,14 @@ export function DashboardAI() {
                         <Target className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                         <div className="flex items-start gap-2">
                           <span>{r}</span>
-                          <Tooltip>
+                          <TooltipProvider><Tooltip>
                             <TooltipTrigger asChild>
                               <Button size="icon" variant="ghost" className="h-6 w-6 p-0">
                                 <Info className="h-3.5 w-3.5 text-muted-foreground" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent side="top">{explainRecommendation(r)}</TooltipContent>
-                          </Tooltip>
+                          </Tooltip></TooltipProvider>
                         </div>
                       </li>
                     ))}
