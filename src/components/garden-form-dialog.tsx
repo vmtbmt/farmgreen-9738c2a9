@@ -25,6 +25,7 @@ const emptyForm = (): GardenInput => ({
   name: "",
   crop: "",
   area: 0,
+  plantCount: 0,
   location: "",
   plantedAt: new Date().toISOString().slice(0, 10),
   notes: "",
@@ -36,6 +37,7 @@ function toForm(garden?: Garden): GardenInput {
         name: garden.name,
         crop: garden.crop,
         area: garden.area,
+        plantCount: garden.plantCount ?? 0,
         location: garden.location,
         plantedAt: garden.plantedAt,
         notes: garden.notes ?? "",
@@ -130,6 +132,20 @@ export function GardenFormDialog({ open, onOpenChange, garden }: GardenFormDialo
                 placeholder="120"
               />
             </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="garden-plant-count">Số cây trong vườn</Label>
+            <Input
+              id="garden-plant-count"
+              type="number"
+              min={0}
+              value={form.plantCount || ""}
+              onChange={(e) => setForm({ ...form, plantCount: Number(e.target.value) })}
+              placeholder="VD: 1200"
+            />
+            <p className="text-xs text-muted-foreground">
+              Dùng để tính năng suất kg/cây trong báo cáo tài chính.
+            </p>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="grid gap-2">

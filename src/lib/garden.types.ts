@@ -4,6 +4,8 @@ export interface Garden {
   name: string;
   crop: string;
   area: number;
+  /** Số cây trong vườn, dùng để tính năng suất kg/cây. */
+  plantCount: number;
   location: string;
   plantedAt: string;
   notes: string;

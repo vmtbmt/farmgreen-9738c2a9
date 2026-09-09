@@ -235,6 +235,7 @@ export type Database = {
           location: string
           name: string
           notes: string | null
+          plant_count: number
           planted_at: string
           updated_at: string
           user_id: string
@@ -248,6 +249,7 @@ export type Database = {
           location?: string
           name: string
           notes?: string | null
+          plant_count?: number
           planted_at: string
           updated_at?: string
           user_id: string
@@ -261,11 +263,65 @@ export type Database = {
           location?: string
           name?: string
           notes?: string | null
+          plant_count?: number
           planted_at?: string
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      harvests: {
+        Row: {
+          buyer_name: string
+          created_at: string
+          crop_name: string
+          garden_id: string
+          harvest_date: string
+          id: string
+          note: string
+          price_per_unit: number
+          quantity: number
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          buyer_name?: string
+          created_at?: string
+          crop_name?: string
+          garden_id: string
+          harvest_date?: string
+          id?: string
+          note?: string
+          price_per_unit?: number
+          quantity?: number
+          unit?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          buyer_name?: string
+          created_at?: string
+          crop_name?: string
+          garden_id?: string
+          harvest_date?: string
+          id?: string
+          note?: string
+          price_per_unit?: number
+          quantity?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "harvests_garden_id_fkey"
+            columns: ["garden_id"]
+            isOneToOne: false
+            referencedRelation: "gardens"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inventory_items: {
         Row: {
@@ -350,9 +406,69 @@ export type Database = {
           },
         ]
       }
+      revenues: {
+        Row: {
+          commission_cost: number
+          created_at: string
+          gross_revenue: number
+          harvest_id: string
+          id: string
+          net_revenue: number
+          other_cost: number
+          shipping_cost: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          commission_cost?: number
+          created_at?: string
+          gross_revenue?: number
+          harvest_id: string
+          id?: string
+          net_revenue?: number
+          other_cost?: number
+          shipping_cost?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          commission_cost?: number
+          created_at?: string
+          gross_revenue?: number
+          harvest_id?: string
+          id?: string
+          net_revenue?: number
+          other_cost?: number
+          shipping_cost?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenues_harvest_id_fkey"
+            columns: ["harvest_id"]
+            isOneToOne: false
+            referencedRelation: "harvests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      profit_summary_view: {
+        Row: {
+          crop_name: string | null
+          expense: number | null
+          garden_id: string | null
+          month: string | null
+          profit: number | null
+          quantity: number | null
+          revenue: number | null
+          user_id: string | null
+          year: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

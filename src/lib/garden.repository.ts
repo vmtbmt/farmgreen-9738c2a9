@@ -5,6 +5,7 @@ type GardenRow = {
   name: string;
   crop: string;
   area: number | string;
+  plant_count?: number | string | null;
   location: string;
   planted_at: string;
   notes: string | null;
@@ -16,6 +17,7 @@ const map = (row: GardenRow): Garden => ({
   name: row.name,
   crop: row.crop,
   area: Number(row.area) || 0,
+  plantCount: Number(row.plant_count) || 0,
   location: row.location ?? "",
   plantedAt: row.planted_at,
   notes: row.notes ?? "",
@@ -51,6 +53,7 @@ export const gardenRepository = {
         name: input.name,
         crop: input.crop,
         area: input.area,
+        plant_count: Math.max(0, Math.round(Number(input.plantCount) || 0)),
         location: input.location,
         planted_at: input.plantedAt,
         notes: input.notes || null,
@@ -64,6 +67,7 @@ export const gardenRepository = {
         name: input.name,
         crop: input.crop,
         area: input.area,
+        plant_count: Math.max(0, Math.round(Number(input.plantCount) || 0)),
         location: input.location,
         planted_at: input.plantedAt,
         notes: input.notes || null,
