@@ -133,6 +133,20 @@ export function GardenFormDialog({ open, onOpenChange, garden }: GardenFormDialo
               />
             </div>
           </div>
+          <div className="grid gap-2">
+            <Label htmlFor="garden-plant-count">Số cây trong vườn</Label>
+            <Input
+              id="garden-plant-count"
+              type="number"
+              min={0}
+              value={form.plantCount || ""}
+              onChange={(e) => setForm({ ...form, plantCount: Number(e.target.value) })}
+              placeholder="VD: 1200"
+            />
+            <p className="text-xs text-muted-foreground">
+              Dùng để tính năng suất kg/cây trong báo cáo tài chính.
+            </p>
+          </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="garden-location">Vị trí</Label>
