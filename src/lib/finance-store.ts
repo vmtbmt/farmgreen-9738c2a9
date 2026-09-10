@@ -220,6 +220,8 @@ export function useFinanceActions() {
       await invalidate();
     },
     async deleteHarvest(id: string) {
+      const { error: revError } = await supabase.from("revenues").delete().eq("harvest_id", id);
+      if (revError) throw revError;
       const { error } = await supabase.from("harvests").delete().eq("id", id);
       if (error) throw error;
       await invalidate();
