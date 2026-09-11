@@ -559,7 +559,7 @@ function Dashboard() {
   );
 }
 
-function StatCard({ label, value, hint, icon }: { label: string; value: number | string; hint?: string; icon: React.ReactNode }) {
+function StatCard({ label, value, hint, icon, tone }: { label: string; value: number | string; hint?: string; icon: React.ReactNode; tone?: "good" | "bad" }) {
   return (
     <Card className="overflow-hidden rounded-3xl border border-border bg-white/95 shadow-sm">
       <CardContent className="p-5">
