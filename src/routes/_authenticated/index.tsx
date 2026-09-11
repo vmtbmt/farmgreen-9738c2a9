@@ -15,6 +15,8 @@ import {
   Clock3,
   ShieldAlert,
   Loader2,
+  TrendingUp,
+  Coins,
 } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
 import { toast } from "sonner";
