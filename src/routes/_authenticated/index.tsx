@@ -28,6 +28,9 @@ import { isTaskOpen, isOverdue } from "@/lib/garden-task-utils";
 import { DashboardAI } from "@/components/dashboard-ai";
 import { WeatherCard } from "@/components/weather-card";
 import { useWeather } from "@/lib/use-weather";
+import { useHarvests } from "@/lib/finance-store";
+import { formatVnd } from "@/lib/expense-utils";
+import { sumRevenue, sumExpense, sumQuantity, monthKey } from "@/lib/finance-utils";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
