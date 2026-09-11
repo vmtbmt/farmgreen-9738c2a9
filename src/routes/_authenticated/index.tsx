@@ -566,7 +566,7 @@ function StatCard({ label, value, hint, icon, tone }: { label: string; value: nu
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</p>
-            <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{value}</p>
+            <p className={`mt-3 text-2xl font-semibold tracking-tight ${tone === "good" ? "text-emerald-700" : tone === "bad" ? "text-destructive" : "text-slate-900"}`}>{value}</p>
             {hint && <p className="mt-2 text-sm text-muted-foreground">{hint}</p>}
           </div>
           <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-700">
