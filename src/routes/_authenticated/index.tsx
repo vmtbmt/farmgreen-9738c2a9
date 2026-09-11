@@ -371,6 +371,34 @@ function Dashboard() {
         ))}
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <StatCard
+          label="Doanh thu tháng"
+          value={formatVnd(finance.revenue)}
+          hint="Từ các đợt thu hoạch"
+          icon={<TrendingUp className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Chi phí tháng"
+          value={formatVnd(finance.expense)}
+          hint="Từ nhật ký và công việc"
+          icon={<Wallet className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Lợi nhuận tháng"
+          value={formatVnd(finance.profit)}
+          hint="Doanh thu trừ chi phí"
+          icon={<Coins className="h-5 w-5" />}
+          tone={finance.profit >= 0 ? "good" : "bad"}
+        />
+        <StatCard
+          label="Sản lượng tháng"
+          value={`${finance.quantity.toLocaleString("vi-VN")} kg`}
+          hint="Quy đổi về kg"
+          icon={<Sprout className="h-5 w-5" />}
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard
           label="Diện tích canh tác"
