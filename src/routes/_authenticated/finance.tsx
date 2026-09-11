@@ -68,7 +68,7 @@ function FinancePage() {
   const insights = useMemo(() => buildInsights(gardens, harvests, logs), [gardens, harvests, logs]);
 
   const isLoading = farmLoading || harvestLoading;
-  const error = farmError || harvestError;
+  const error = harvestError;
 
   const exportExcel = () => {
     const wb = XLSX.utils.book_new();
