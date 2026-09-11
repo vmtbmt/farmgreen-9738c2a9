@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Sprout, Leaf, LogOut, Sparkles, CloudSun, Package, Wheat } from "lucide-react";
+import { LayoutDashboard, Sprout, Leaf, LogOut, Sparkles, CloudSun, Package, Wheat, BarChart3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
