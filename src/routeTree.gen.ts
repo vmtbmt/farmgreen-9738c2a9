@@ -17,6 +17,7 @@ import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedHarvestsRouteImport } from './routes/_authenticated/harvests'
 import { Route as AuthenticatedGardensRouteImport } from './routes/_authenticated/gardens'
+import { Route as AuthenticatedFinanceRouteImport } from './routes/_authenticated/finance'
 import { Route as AuthenticatedDiagnoseRouteImport } from './routes/_authenticated/diagnose'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedLogsIndexRouteImport } from './routes/_authenticated/logs.index'
@@ -68,6 +69,11 @@ const AuthenticatedHarvestsRoute = AuthenticatedHarvestsRouteImport.update({
 const AuthenticatedGardensRoute = AuthenticatedGardensRouteImport.update({
   id: '/gardens',
   path: '/gardens',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFinanceRoute = AuthenticatedFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDiagnoseRoute = AuthenticatedDiagnoseRouteImport.update({
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/assistant': typeof AuthenticatedAssistantRoute
   '/diagnose': typeof AuthenticatedDiagnoseRoute
+  '/finance': typeof AuthenticatedFinanceRoute
   '/gardens': typeof AuthenticatedGardensRouteWithChildren
   '/harvests': typeof AuthenticatedHarvestsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/assistant': typeof AuthenticatedAssistantRoute
   '/diagnose': typeof AuthenticatedDiagnoseRoute
+  '/finance': typeof AuthenticatedFinanceRoute
   '/harvests': typeof AuthenticatedHarvestsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/diagnose': typeof AuthenticatedDiagnoseRoute
+  '/_authenticated/finance': typeof AuthenticatedFinanceRoute
   '/_authenticated/gardens': typeof AuthenticatedGardensRouteWithChildren
   '/_authenticated/harvests': typeof AuthenticatedHarvestsRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/assistant'
     | '/diagnose'
+    | '/finance'
     | '/gardens'
     | '/harvests'
     | '/inventory'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/assistant'
     | '/diagnose'
+    | '/finance'
     | '/harvests'
     | '/inventory'
     | '/reports'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/assistant'
     | '/_authenticated/diagnose'
+    | '/_authenticated/finance'
     | '/_authenticated/gardens'
     | '/_authenticated/harvests'
     | '/_authenticated/inventory'
@@ -340,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/gardens'
       fullPath: '/gardens'
       preLoaderRoute: typeof AuthenticatedGardensRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/finance': {
+      id: '/_authenticated/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof AuthenticatedFinanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/diagnose': {
@@ -483,6 +502,7 @@ const AuthenticatedGardensRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedDiagnoseRoute: typeof AuthenticatedDiagnoseRoute
+  AuthenticatedFinanceRoute: typeof AuthenticatedFinanceRoute
   AuthenticatedGardensRoute: typeof AuthenticatedGardensRouteWithChildren
   AuthenticatedHarvestsRoute: typeof AuthenticatedHarvestsRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
@@ -497,6 +517,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedDiagnoseRoute: AuthenticatedDiagnoseRoute,
+  AuthenticatedFinanceRoute: AuthenticatedFinanceRoute,
   AuthenticatedGardensRoute: AuthenticatedGardensRouteWithChildren,
   AuthenticatedHarvestsRoute: AuthenticatedHarvestsRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,

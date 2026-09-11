@@ -40,7 +40,7 @@ const PIE_COLORS = ["#16a34a", "#0ea5e9", "#f59e0b", "#ef4444", "#8b5cf6", "#14b
 const RANGE_KEYS: FinanceRangeKey[] = ["today", "7days", "30days", "month", "year", "custom"];
 
 function FinancePage() {
-  const { gardens, logs, isLoading: farmLoading, error: farmError } = useFarmStore();
+  const { gardens, logs, isLoading: farmLoading } = useFarmStore();
   const { data: harvests = [], isLoading: harvestLoading, error: harvestError, refetch } = useHarvests();
 
   const [rangeKey, setRangeKey] = useState<FinanceRangeKey>("month");
