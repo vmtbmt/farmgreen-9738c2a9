@@ -82,6 +82,16 @@ function Dashboard() {
     return { tasksToday, overdue, monthlyCost, totalArea };
   }, [allTasks, logs, gardens, todayKey]);
 
+  const finance = useMemo(() => {
+    const month = todayKey.slice(0, 7);
+    const h = harvests.filter((x) => monthKey(x.harvestDate) === month);
+    const l = logs.filter((x) => monthKey(x.date) === month);
+    const revenue = sumRevenue(h);
+    const expense = sumExpense(l);
+    return { revenue, expense, profit: revenue - expense, quantity: sumQuantity(h) };
+  }, [harvests, logs, todayKey]);
+
+
   const todayTasks = useMemo(
     () =>
       stats.tasksToday.map((task) => ({
