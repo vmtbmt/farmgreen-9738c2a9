@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Sprout, Leaf, LogOut, Sparkles, CloudSun, Package, Wheat } from "lucide-react";
+import { LayoutDashboard, Sprout, Leaf, LogOut, Sparkles, CloudSun, Package, Wheat, BarChart3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -12,6 +12,7 @@ const items = [
   { title: "Tổng quan", url: "/", icon: LayoutDashboard, match: ["/"] },
   { title: "Khu vườn", url: "/gardens", icon: Sprout, match: ["/gardens", "/garden", "/logs"] },
   { title: "Thu hoạch", url: "/harvests", icon: Wheat, match: ["/harvests"] },
+  { title: "Báo cáo tài chính", url: "/finance", icon: BarChart3, match: ["/finance"] },
   { title: "Tồn kho", url: "/inventory", icon: Package, match: ["/inventory"] },
   { title: "Thời tiết", url: "/weather", icon: CloudSun, match: ["/weather"] },
   { title: "AI", url: "/assistant", icon: Sparkles, match: ["/assistant", "/diagnose", "/reports"] },

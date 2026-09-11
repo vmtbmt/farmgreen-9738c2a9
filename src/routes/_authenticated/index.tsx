@@ -15,6 +15,8 @@ import {
   Clock3,
   ShieldAlert,
   Loader2,
+  TrendingUp,
+  Coins,
 } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -28,6 +30,9 @@ import { isTaskOpen, isOverdue } from "@/lib/garden-task-utils";
 import { DashboardAI } from "@/components/dashboard-ai";
 import { WeatherCard } from "@/components/weather-card";
 import { useWeather } from "@/lib/use-weather";
+import { useHarvests } from "@/lib/finance-store";
+import { formatVnd } from "@/lib/expense-utils";
+import { sumRevenue, sumExpense, sumQuantity, monthKey } from "@/lib/finance-utils";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -62,6 +67,7 @@ function Dashboard() {
   const { gardens, logs } = useFarmStore();
   const { data: allTasks = [] } = useAllGardenTasks();
   const { data: weather } = useWeather();
+  const { data: harvests = [] } = useHarvests();
 
   const today = new Date();
   const todayKey = today.toISOString().slice(0, 10);
@@ -77,6 +83,16 @@ function Dashboard() {
     const totalArea = gardens.reduce((s, g) => s + (g.area || 0), 0);
     return { tasksToday, overdue, monthlyCost, totalArea };
   }, [allTasks, logs, gardens, todayKey]);
+
+  const finance = useMemo(() => {
+    const month = todayKey.slice(0, 7);
+    const h = harvests.filter((x) => monthKey(x.harvestDate) === month);
+    const l = logs.filter((x) => monthKey(x.date) === month);
+    const revenue = sumRevenue(h);
+    const expense = sumExpense(l);
+    return { revenue, expense, profit: revenue - expense, quantity: sumQuantity(h) };
+  }, [harvests, logs, todayKey]);
+
 
   const todayTasks = useMemo(
     () =>
@@ -357,6 +373,34 @@ function Dashboard() {
         ))}
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <StatCard
+          label="Doanh thu tháng"
+          value={formatVnd(finance.revenue)}
+          hint="Từ các đợt thu hoạch"
+          icon={<TrendingUp className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Chi phí tháng"
+          value={formatVnd(finance.expense)}
+          hint="Từ nhật ký và công việc"
+          icon={<Wallet className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Lợi nhuận tháng"
+          value={formatVnd(finance.profit)}
+          hint="Doanh thu trừ chi phí"
+          icon={<Coins className="h-5 w-5" />}
+          tone={finance.profit >= 0 ? "good" : "bad"}
+        />
+        <StatCard
+          label="Sản lượng tháng"
+          value={`${finance.quantity.toLocaleString("vi-VN")} kg`}
+          hint="Quy đổi về kg"
+          icon={<Sprout className="h-5 w-5" />}
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard
           label="Diện tích canh tác"
@@ -517,14 +561,14 @@ function Dashboard() {
   );
 }
 
-function StatCard({ label, value, hint, icon }: { label: string; value: number | string; hint?: string; icon: React.ReactNode }) {
+function StatCard({ label, value, hint, icon, tone }: { label: string; value: number | string; hint?: string; icon: React.ReactNode; tone?: "good" | "bad" }) {
   return (
     <Card className="overflow-hidden rounded-3xl border border-border bg-white/95 shadow-sm">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</p>
-            <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{value}</p>
+            <p className={`mt-3 text-2xl font-semibold tracking-tight ${tone === "good" ? "text-emerald-700" : tone === "bad" ? "text-destructive" : "text-slate-900"}`}>{value}</p>
             {hint && <p className="mt-2 text-sm text-muted-foreground">{hint}</p>}
           </div>
           <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-700">
