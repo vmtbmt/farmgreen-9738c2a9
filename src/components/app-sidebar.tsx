@@ -12,6 +12,7 @@ const items = [
   { title: "Tổng quan", url: "/", icon: LayoutDashboard, match: ["/"] },
   { title: "Khu vườn", url: "/gardens", icon: Sprout, match: ["/gardens", "/garden", "/logs"] },
   { title: "Thu hoạch", url: "/harvests", icon: Wheat, match: ["/harvests"] },
+  { title: "Báo cáo tài chính", url: "/finance", icon: BarChart3, match: ["/finance"] },
   { title: "Tồn kho", url: "/inventory", icon: Package, match: ["/inventory"] },
   { title: "Thời tiết", url: "/weather", icon: CloudSun, match: ["/weather"] },
   { title: "AI", url: "/assistant", icon: Sparkles, match: ["/assistant", "/diagnose", "/reports"] },
