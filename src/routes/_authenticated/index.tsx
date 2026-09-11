@@ -62,6 +62,7 @@ function Dashboard() {
   const { gardens, logs } = useFarmStore();
   const { data: allTasks = [] } = useAllGardenTasks();
   const { data: weather } = useWeather();
+  const { data: harvests = [] } = useHarvests();
 
   const today = new Date();
   const todayKey = today.toISOString().slice(0, 10);
