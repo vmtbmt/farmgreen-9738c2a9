@@ -12,7 +12,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { COMMON_CROPS, OTHER_CROP_VALUE, isCommonCrop } from "@/lib/crop-options";
 import { type Garden, type GardenInput, useFarmActions } from "@/lib/farm-store";
 
 type GardenFormDialogProps = {
@@ -48,11 +56,15 @@ function toForm(garden?: Garden): GardenInput {
 export function GardenFormDialog({ open, onOpenChange, garden }: GardenFormDialogProps) {
   const actions = useFarmActions();
   const [form, setForm] = useState<GardenInput>(() => toForm(garden));
+  const [customCrop, setCustomCrop] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const isEditing = Boolean(garden);
 
   useEffect(() => {
-    if (open) setForm(toForm(garden));
+    if (open) {
+      setForm(toForm(garden));
+      setCustomCrop(Boolean(garden?.crop && !isCommonCrop(garden.crop)));
+    }
   }, [garden, open]);
 
   const submit = async (event: React.FormEvent) => {
@@ -114,12 +126,29 @@ export function GardenFormDialog({ open, onOpenChange, garden }: GardenFormDialo
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="garden-crop">Loại cây trồng *</Label>
-              <Input
-                id="garden-crop"
-                value={form.crop}
-                onChange={(e) => setForm({ ...form, crop: e.target.value })}
-                placeholder="VD: Cà phê"
-              />
+              <Select
+                value={customCrop ? OTHER_CROP_VALUE : form.crop}
+                onValueChange={(value) => {
+                  const isOther = value === OTHER_CROP_VALUE;
+                  setCustomCrop(isOther);
+                  setForm({ ...form, crop: isOther ? "" : value });
+                }}
+              >
+                <SelectTrigger id="garden-crop"><SelectValue placeholder="Chọn cây trồng" /></SelectTrigger>
+                <SelectContent>
+                  {COMMON_CROPS.map((crop) => <SelectItem key={crop} value={crop}>{crop}</SelectItem>)}
+                  <SelectItem value={OTHER_CROP_VALUE}>Cây khác</SelectItem>
+                </SelectContent>
+              </Select>
+              {customCrop && (
+                <Input
+                  aria-label="Tên cây trồng khác"
+                  value={form.crop}
+                  onChange={(e) => setForm({ ...form, crop: e.target.value })}
+                  placeholder="Nhập tên cây trồng"
+                  autoFocus
+                />
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="garden-area">Diện tích (m²)</Label>

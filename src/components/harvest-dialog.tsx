@@ -22,6 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useGardens } from "@/hooks/use-gardens";
 import { formatVnd } from "@/lib/expense-utils";
+import { COMMON_CROPS, OTHER_CROP_VALUE, isCommonCrop } from "@/lib/crop-options";
 import {
   HARVEST_UNITS,
   grossOf,
@@ -59,11 +60,13 @@ export function HarvestDialog({
   const { data: gardens = [] } = useGardens();
   const actions = useFinanceActions();
   const [form, setForm] = useState<HarvestInput>(emptyForm());
+  const [customCrop, setCustomCrop] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     if (harvest) {
+      setCustomCrop(Boolean(harvest.cropName && !isCommonCrop(harvest.cropName)));
       setForm({
         gardenId: harvest.gardenId,
         cropName: harvest.cropName,
@@ -79,6 +82,7 @@ export function HarvestDialog({
       });
     } else {
       setForm(emptyForm(gardens[0]?.id ?? ""));
+      setCustomCrop(false);
     }
   }, [open, harvest, gardens]);
 
@@ -148,12 +152,29 @@ export function HarvestDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="crop">Cây trồng</Label>
-              <Input
-                id="crop"
-                value={form.cropName}
-                placeholder="Cà phê, sầu riêng..."
-                onChange={(e) => set("cropName", e.target.value)}
-              />
+              <Select
+                value={customCrop ? OTHER_CROP_VALUE : form.cropName}
+                onValueChange={(value) => {
+                  const isOther = value === OTHER_CROP_VALUE;
+                  setCustomCrop(isOther);
+                  set("cropName", isOther ? "" : value);
+                }}
+              >
+                <SelectTrigger id="crop"><SelectValue placeholder="Chọn cây trồng" /></SelectTrigger>
+                <SelectContent>
+                  {COMMON_CROPS.map((crop) => <SelectItem key={crop} value={crop}>{crop}</SelectItem>)}
+                  <SelectItem value={OTHER_CROP_VALUE}>Cây khác</SelectItem>
+                </SelectContent>
+              </Select>
+              {customCrop && (
+                <Input
+                  aria-label="Tên cây trồng khác"
+                  value={form.cropName}
+                  placeholder="Nhập tên cây trồng"
+                  onChange={(e) => set("cropName", e.target.value)}
+                  autoFocus
+                />
+              )}
             </div>
           </div>
 
