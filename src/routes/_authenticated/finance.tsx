@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import {
   BarChart3, Download, FileText, Loader2, TrendingUp, TrendingDown, Wallet, Sprout, Trophy,
+  ArrowUpRight, ArrowDownRight, CalendarDays, Lightbulb, ReceiptText,
 } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -36,7 +37,10 @@ export const Route = createFileRoute("/_authenticated/finance")({
   component: FinancePage,
 });
 
-const PIE_COLORS = ["#16a34a", "#0ea5e9", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6", "#f97316", "#64748b", "#a3a3a3"];
+const PIE_COLORS = [
+  "var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)",
+  "var(--finance-revenue)", "var(--finance-expense)", "var(--finance-profit)", "var(--muted-foreground)",
+];
 const RANGE_KEYS: FinanceRangeKey[] = ["today", "7days", "30days", "month", "year", "custom"];
 
 function FinancePage() {
@@ -66,6 +70,11 @@ function FinancePage() {
   const cropRows = useMemo(() => profitByCrop(gardens, scoped.h, scoped.l), [gardens, scoped]);
   const yields = useMemo(() => productivity(gardens, scoped.h), [gardens, scoped.h]);
   const insights = useMemo(() => buildInsights(gardens, harvests, logs), [gardens, harvests, logs]);
+  const recentExpenses = useMemo(
+    () => [...scoped.l].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6),
+    [scoped.l],
+  );
+  const gardenNames = useMemo(() => new Map(gardens.map((garden) => [garden.id, garden.name])), [gardens]);
 
   const isLoading = farmLoading || harvestLoading;
   const error = harvestError;
@@ -153,36 +162,35 @@ function FinancePage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 overflow-x-hidden p-4 sm:p-6 print:p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto w-full max-w-7xl space-y-5 overflow-x-hidden p-4 sm:p-6 print:p-0">
+      <div className="flex flex-col justify-between gap-4 border-b pb-5 sm:flex-row sm:items-end">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
-            <BarChart3 className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+            <BarChart3 className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Báo cáo tài chính</h1>
-            <p className="text-sm text-muted-foreground">Doanh thu, chi phí và lợi nhuận của nông trại.</p>
+            <h1 className="text-2xl font-bold sm:text-3xl">Báo cáo tài chính</h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">Theo dõi sức khỏe tài chính của toàn bộ nông trại.</p>
           </div>
         </div>
-        <div className="flex gap-2 print:hidden">
-          <Button variant="outline" onClick={exportExcel}>
+        <div className="flex w-full gap-2 sm:w-auto print:hidden">
+          <Button className="flex-1 sm:flex-none" variant="outline" onClick={exportExcel}>
             <Download className="mr-2 h-4 w-4" /> Xuất Excel
           </Button>
-          <Button variant="outline" onClick={exportPdf}>
+          <Button className="flex-1 sm:flex-none" variant="outline" onClick={exportPdf}>
             <FileText className="mr-2 h-4 w-4" /> Xuất PDF
           </Button>
         </div>
       </div>
 
-      <Card className="print:hidden">
-        <CardContent className="space-y-3 p-4">
-          <div className="flex flex-wrap gap-2">
+      <div className="space-y-3 print:hidden">
+          <div className="flex gap-1 overflow-x-auto rounded-lg border bg-muted/40 p-1">
             {RANGE_KEYS.map((k) => (
               <Button
                 key={k}
                 size="sm"
-                variant={rangeKey === k ? "default" : "outline"}
-                className={rangeKey === k ? "gradient-primary text-primary-foreground" : ""}
+                variant={rangeKey === k ? "default" : "ghost"}
+                className="shrink-0"
                 onClick={() => setRangeKey(k)}
               >
                 {FINANCE_RANGE_LABELS[k]}
@@ -190,7 +198,7 @@ function FinancePage() {
             ))}
           </div>
           {rangeKey === "custom" && (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid max-w-xl gap-3 rounded-lg border p-3 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label htmlFor="from">Từ ngày</Label>
                 <Input id="from" type="date" value={custom.from} onChange={(e) => setCustom((s) => ({ ...s, from: e.target.value }))} />
@@ -201,58 +209,84 @@ function FinancePage() {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Doanh thu" value={formatVnd(revenue)} icon={<TrendingUp className="h-4 w-4" />} />
-        <Metric label="Chi phí" value={formatVnd(expense)} icon={<Wallet className="h-4 w-4" />} />
+        <Metric label="Doanh thu" value={formatVnd(revenue)} icon={<TrendingUp className="h-5 w-5" />} kind="revenue" detail={`${scoped.h.length} đợt thu hoạch`} />
+        <Metric label="Chi phí" value={formatVnd(expense)} icon={<Wallet className="h-5 w-5" />} kind="expense" detail={`${scoped.l.length} khoản chi`} />
         <Metric
           label="Lợi nhuận"
           value={formatVnd(profit)}
           icon={profit >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
           tone={profit >= 0 ? "good" : "bad"}
+          kind="profit"
+          detail={revenue > 0 ? `Biên lợi nhuận ${Math.round((profit / revenue) * 100)}%` : "Chưa có doanh thu"}
         />
-        <Metric label="Sản lượng" value={`${quantity.toLocaleString("vi-VN")} kg`} icon={<Sprout className="h-4 w-4" />} />
+        <Metric label="Sản lượng" value={`${quantity.toLocaleString("vi-VN")} kg`} icon={<Sprout className="h-5 w-5" />} kind="harvest" detail="Đã quy đổi về kg" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader><CardTitle className="text-base">Doanh thu theo tháng</CardTitle></CardHeader>
-          <CardContent className="h-72">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.75fr)]">
+        <Card className="overflow-hidden">
+          <CardHeader className="flex-row items-center justify-between space-y-0 border-b">
+            <div><CardTitle className="text-base">Doanh thu theo tháng</CardTitle><p className="mt-1 text-xs text-muted-foreground">Xu hướng 6 tháng gần nhất</p></div>
+            <div className="rounded-md bg-finance-revenue/10 p-2 text-finance-revenue"><TrendingUp className="h-4 w-4" /></div>
+          </CardHeader>
+          <CardContent className="h-80 pt-5">
             {revenueSeries.every((r) => r.revenue === 0) ? (
               <Empty text="Chưa có doanh thu" />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={revenueSeries} margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="label" fontSize={12} />
                   <YAxis tickFormatter={(v) => formatShortVnd(Number(v))} fontSize={12} width={52} />
                   <Tooltip formatter={(v) => formatVnd(Number(v))} labelFormatter={(l) => `Tháng ${l}`} />
-                  <Line type="monotone" dataKey="revenue" name="Doanh thu" stroke="#16a34a" strokeWidth={2} dot />
+                  <Line type="monotone" dataKey="revenue" name="Doanh thu" stroke="var(--finance-revenue)" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }} />
                 </LineChart>
               </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
 
+        <Card className="overflow-hidden">
+          <CardHeader className="border-b"><CardTitle className="flex items-center gap-2 text-base"><Lightbulb className="h-4 w-4 text-primary" /> Nhận định</CardTitle></CardHeader>
+          <CardContent className="p-4">
+            {insights.length === 0 ? <Empty text="Chưa đủ dữ liệu để đưa ra nhận định" /> : (
+              <div className="space-y-3">
+                {insights.slice(0, 4).map((i) => (
+                  <div key={i.title} className="flex gap-3 border-b pb-3 last:border-0 last:pb-0">
+                    <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${i.tone === "good" ? "bg-finance-revenue/10 text-finance-revenue" : i.tone === "bad" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
+                      {i.tone === "bad" ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
+                    </div>
+                    <div><p className="text-sm font-semibold">{i.title}</p><p className="mt-0.5 text-xs leading-5 text-muted-foreground">{i.detail}</p></div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(280px,0.75fr)_minmax(0,1.65fr)]">
         <Card>
           <CardHeader><CardTitle className="text-base">Chi phí theo nhóm</CardTitle></CardHeader>
           <CardContent className="h-72">
-            {pie.length === 0 ? (
-              <Empty text="Chưa có chi phí trong khoảng thời gian này" />
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pie} dataKey="value" nameKey="name" outerRadius={90} label={false}>
-                    {pie.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(v) => formatVnd(Number(v))} />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                </PieChart>
-              </ResponsiveContainer>
+            {pie.length === 0 ? <Empty text="Chưa có chi phí trong khoảng thời gian này" /> : (
+              <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={pie} dataKey="value" nameKey="name" innerRadius={52} outerRadius={78} paddingAngle={2}>{pie.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}</Pie><Tooltip formatter={(v) => formatVnd(Number(v))} /><Legend wrapperStyle={{ fontSize: 12 }} /></PieChart></ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="overflow-hidden">
+          <CardHeader className="border-b"><CardTitle className="flex items-center gap-2 text-base"><ReceiptText className="h-4 w-4" /> Giao dịch gần đây</CardTitle></CardHeader>
+          <CardContent className="p-0">
+            {recentExpenses.length === 0 ? <div className="p-4"><Empty text="Chưa có khoản chi trong kỳ báo cáo" /></div> : (
+              <div className="divide-y">{recentExpenses.map((item) => (
+                <div key={item.id} className="flex items-center gap-3 px-4 py-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-finance-expense/10 text-finance-expense"><ReceiptText className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{item.note || item.expenseCategory}</p><p className="truncate text-xs text-muted-foreground">{gardenNames.get(item.gardenId) || "Khu vườn"} · {item.expenseCategory}</p></div>
+                  <div className="shrink-0 text-right"><p className="text-sm font-semibold text-finance-expense">−{formatVnd(item.cost)}</p><p className="flex items-center justify-end gap-1 text-xs text-muted-foreground"><CalendarDays className="h-3 w-3" />{new Date(`${item.date}T00:00:00`).toLocaleDateString("vi-VN")}</p></div>
+                </div>
+              ))}</div>
             )}
           </CardContent>
         </Card>
@@ -294,33 +328,6 @@ function FinancePage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader><CardTitle className="text-base">Nhận định</CardTitle></CardHeader>
-        <CardContent>
-          {insights.length === 0 ? (
-            <Empty text="Chưa đủ dữ liệu để đưa ra nhận định" />
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {insights.map((i) => (
-                <div
-                  key={i.title}
-                  className={`rounded-xl border p-4 ${
-                    i.tone === "good"
-                      ? "border-primary/40 bg-primary/5"
-                      : i.tone === "bad"
-                        ? "border-destructive/40 bg-destructive/10"
-                        : "border-border"
-                  }`}
-                >
-                  <p className="font-medium">{i.title}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{i.detail}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       <p className="text-xs text-muted-foreground">
         Kỳ báo cáo: {range.from} → {range.to} · {monthLabel(range.to.slice(0, 7))}
       </p>
@@ -329,19 +336,26 @@ function FinancePage() {
 }
 
 function Metric({
-  label, value, icon, tone,
-}: { label: string; value: string; icon: React.ReactNode; tone?: "good" | "bad" }) {
+  label, value, icon, tone, kind, detail,
+}: { label: string; value: string; icon: React.ReactNode; tone?: "good" | "bad"; kind: "revenue" | "expense" | "profit" | "harvest"; detail: string }) {
+  const theme = {
+    revenue: "finance-kpi-revenue text-finance-revenue",
+    expense: "finance-kpi-expense text-finance-expense",
+    profit: "finance-kpi-profit text-finance-profit",
+    harvest: "finance-kpi-harvest text-finance-harvest",
+  }[kind];
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">{icon} {label}</div>
+    <Card className={`overflow-hidden ${theme.split(" ")[0]}`}>
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-center justify-between"><span className="text-xs font-medium uppercase text-muted-foreground">{label}</span><span className={`rounded-md bg-background/70 p-2 ${theme.split(" ")[1]}`}>{icon}</span></div>
         <div
-          className={`mt-1 text-xl font-bold ${
+          className={`mt-3 text-xl font-bold ${
             tone === "good" ? "text-primary" : tone === "bad" ? "text-destructive" : ""
           }`}
         >
           {value}
         </div>
+        <p className="mt-2 truncate text-xs text-muted-foreground">{detail}</p>
       </CardContent>
     </Card>
   );
