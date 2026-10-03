@@ -107,6 +107,56 @@ export type Database = {
         }
         Relationships: []
       }
+      attendance_records: {
+        Row: {
+          created_at: string
+          daily_wage: number
+          id: string
+          note: string
+          overtime_hours: number
+          status: string
+          updated_at: string
+          user_id: string
+          wage_amount: number
+          work_date: string
+          worker_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_wage?: number
+          id?: string
+          note?: string
+          overtime_hours?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+          wage_amount?: number
+          work_date: string
+          worker_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_wage?: number
+          id?: string
+          note?: string
+          overtime_hours?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+          wage_amount?: number
+          work_date?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disease_checks: {
         Row: {
           cause: string
@@ -452,6 +502,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      workers: {
+        Row: {
+          active: boolean
+          created_at: string
+          daily_wage: number
+          full_name: string
+          id: string
+          notes: string
+          phone: string
+          updated_at: string
+          user_id: string
+          worker_type: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          daily_wage?: number
+          full_name: string
+          id?: string
+          notes?: string
+          phone?: string
+          updated_at?: string
+          user_id: string
+          worker_type?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          daily_wage?: number
+          full_name?: string
+          id?: string
+          notes?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+          worker_type?: string
+        }
+        Relationships: []
       }
     }
     Views: {
